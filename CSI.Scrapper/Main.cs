@@ -99,8 +99,8 @@ namespace CSI.Scrapper
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
 
-            var ws = new WescoService();
-            var wsProducts = ws.GetProducts(productIds, sender as BackgroundWorker);
+            var ws = new WescoService(sender as BackgroundWorker);
+            var wsProducts = ws.GetProducts(productIds);
 
             foreach (var wsProduct in wsProducts)
             {
@@ -111,7 +111,7 @@ namespace CSI.Scrapper
         private void bgWebWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (e.UserState != null)
-                txtLogs.Text += e.UserState + Environment.NewLine + Environment.NewLine;
+                txtLogs.AppendText(e.UserState + Environment.NewLine + Environment.NewLine);
         }
 
         private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

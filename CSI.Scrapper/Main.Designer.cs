@@ -67,7 +67,7 @@
             this.gbSearchWeb.Controls.Add(this.txtSearchTerm);
             this.gbSearchWeb.Location = new System.Drawing.Point(12, 12);
             this.gbSearchWeb.Name = "gbSearchWeb";
-            this.gbSearchWeb.Size = new System.Drawing.Size(518, 89);
+            this.gbSearchWeb.Size = new System.Drawing.Size(518, 69);
             this.gbSearchWeb.TabIndex = 3;
             this.gbSearchWeb.TabStop = false;
             this.gbSearchWeb.Text = "Search web for product price";
@@ -87,7 +87,7 @@
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsLblStatus});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 407);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 371);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(883, 25);
             this.toolStrip1.TabIndex = 4;
@@ -106,7 +106,7 @@
             this.gvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.gvProducts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.gvProducts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gvProducts.Location = new System.Drawing.Point(12, 122);
+            this.gvProducts.Location = new System.Drawing.Point(12, 97);
             this.gvProducts.Name = "gvProducts";
             this.gvProducts.ReadOnly = true;
             this.gvProducts.Size = new System.Drawing.Size(518, 259);
@@ -120,7 +120,7 @@
             this.txtLogs.Name = "txtLogs";
             this.txtLogs.ReadOnly = true;
             this.txtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLogs.Size = new System.Drawing.Size(319, 360);
+            this.txtLogs.Size = new System.Drawing.Size(319, 335);
             this.txtLogs.TabIndex = 6;
             this.txtLogs.Text = "Logs show here";
             // 
@@ -135,7 +135,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(883, 432);
+            this.ClientSize = new System.Drawing.Size(883, 396);
             this.Controls.Add(this.txtLogs);
             this.Controls.Add(this.gvProducts);
             this.Controls.Add(this.toolStrip1);

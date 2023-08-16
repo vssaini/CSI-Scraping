@@ -6,6 +6,6 @@
         public string Name { get; set; }
         public string Price { get; set; }
 
-        public bool Found { get; set; }
+        public string Status { get; set; }
     }
 }

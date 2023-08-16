@@ -110,6 +110,7 @@
     <Compile Include="Models\ScrapeMe\PokemonProduct.cs" />
     <Compile Include="Models\Wesco\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ChromeService.cs" />
     <Compile Include="Services\ScrapeMe\HapService.cs" />
     <Compile Include="Services\ScrapeMe\SeleniumService.cs" />
     <Compile Include="Services\ToScrape\HapService.cs" />
