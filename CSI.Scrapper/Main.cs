@@ -23,8 +23,7 @@ namespace CSI.Scrapper
             _products = new ObservableCollection<Product>();
             _products.CollectionChanged += Products_CollectionChanged;
 
-            _bindingSource = new BindingSource();
-            _bindingSource.DataSource = _products;
+            _bindingSource = new BindingSource { DataSource = _products };
 
             // Error handling for application
             var currentDomain = AppDomain.CurrentDomain;
@@ -41,7 +40,7 @@ namespace CSI.Scrapper
                 return;
             }
 
-            _bindingSource.ResetBindings(false);
+            ResetBindingSourceBindings();
         }
 
         private void ResetBindingSourceBindings()
@@ -65,7 +64,7 @@ namespace CSI.Scrapper
 
         private void Main_Load(object sender, EventArgs e)
         {
-            txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
+            //txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
             txtSearchTerm.Focus();
         }
 

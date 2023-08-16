@@ -122,7 +122,7 @@
             this.txtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtLogs.Size = new System.Drawing.Size(319, 335);
             this.txtLogs.TabIndex = 6;
-            this.txtLogs.Text = "Logs show here";
+            this.txtLogs.Text = "Welcome to CSI Scrapper!";
             // 
             // bgWebWorker
             // 
