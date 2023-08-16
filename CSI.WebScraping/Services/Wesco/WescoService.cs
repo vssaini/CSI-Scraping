@@ -1,41 +1,39 @@
-﻿using System;
-using System.Configuration;
-using System.Linq;
-using System.Threading;
-using CSI.Common;
+﻿using CSI.WebScraping.Models.Wesco;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 
 namespace CSI.WebScraping.Services.Wesco
 {
     public class WescoService
     {
-        public static void SearchProductPrice(bool saveMilestoneScreenshots = false)
+        public IEnumerable<Product> GetProducts(List<string> productIds, BackgroundWorker bgWorker)
         {
-            var searchTerm = GetWescoProductSearchTerm();
+            using var driver = GetChromeDriver(bgWorker);
 
-            Logger.LogWithDoubleLines($"Scraping products price from Wesco started at {DateTime.Now:HH:mm:ss}.");
+            Login(driver, false, bgWorker);
 
-            using var driver = GetChromeDriver();
-
-            Login(driver, saveMilestoneScreenshots);
-
-            var productIds = searchTerm.Split(',').Select(x => x.Trim()).ToList();
             foreach (var productId in productIds)
             {
-                SearchProduct(driver, productId, saveMilestoneScreenshots);
+                yield return SearchProduct(driver, productId, false, bgWorker);
             }
-
-            Logger.LogWithDoubleLines($"Scraping products price from Wesco completed at {DateTime.Now:HH:mm:ss}.");
         }
 
-        private static ChromeDriver GetChromeDriver()
+        private static ChromeDriver GetChromeDriver(BackgroundWorker bgWorker)
         {
-            Logger.LogInfo("Initiating Chrome driver.");
+            bgWorker.ReportProgress(0, "Initiating Chrome driver.");
 
-            // to open Chrome in headless mode 
+            CloseGhostsChromeDriver();
+
             var chromeOptions = new ChromeOptions();
 
+            // Open Chrome without displaying 
             chromeOptions.AddArgument("headless");
             chromeOptions.AddArgument("ignore-certificate-errors");
 
@@ -46,22 +44,46 @@ namespace CSI.WebScraping.Services.Wesco
             const string userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36";
             chromeOptions.AddArgument($"user-agent={userAgent}");
 
-            return new ChromeDriver(chromeOptions);
+            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            chromeDriverService.HideCommandPromptWindow = HideChromeDriverCommandPromptWindow();
+            return new ChromeDriver(chromeDriverService, chromeOptions);
         }
 
-        private static string GetWescoProductSearchTerm()
+        private static void CloseGhostsChromeDriver()
         {
-            var searchTerm = ConfigurationManager.AppSettings["WescoProductSearchTerm"];
-            return searchTerm ?? throw new Exception("WescoProductSearchTerm is not defined in App.config");
+            var cmd = Process.GetProcessesByName("cmd");
+            var chromeDriver = Process.GetProcessesByName("chromedriver");
+
+            var workers = chromeDriver.Concat(cmd).ToArray();
+
+            foreach (var worker in workers)
+            {
+                worker.Kill();
+                worker.WaitForExit();
+                worker.Dispose();
+            }
         }
 
-        private static void Login(WebDriver driver, bool saveMilestoneScreenshots)
+        private static bool HideChromeDriverCommandPromptWindow()
+        {
+            try
+            {
+                var hideCmdPromptVal = ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"];
+                return bool.TryParse(hideCmdPromptVal, out var hideCmdPrompt) && hideCmdPrompt;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static void Login(WebDriver driver, bool saveMilestoneScreenshots, BackgroundWorker bgWorker)
         {
             var loginUrl = ConfigurationManager.AppSettings["WescoLoginUrl"];
             var username = ConfigurationManager.AppSettings["WescoUsername"];
             var password = ConfigurationManager.AppSettings["WescoPassword"];
 
-            Logger.LogInfo($"Logging in to Wesco on URL '{loginUrl}' with username '{username}'");
+            bgWorker.ReportProgress(0, $"Logging in to Wesco on URL '{loginUrl}' with username '{username}'");
 
             driver.Navigate().GoToUrl(loginUrl);
 
@@ -79,12 +101,12 @@ namespace CSI.WebScraping.Services.Wesco
             WaitForMilliseconds(5000);
         }
 
-        private static void SearchProduct(WebDriver driver, string searchTerm, bool saveMilestoneScreenshots)
+        private static Product SearchProduct(WebDriver driver, string productId, bool saveMilestoneScreenshots, BackgroundWorker bgWorker)
         {
-            Logger.LogInfo($"Searching the product '{searchTerm}'");
+            bgWorker.ReportProgress(0, $"Searching the product '{productId}'");
 
             var searchField = driver.FindElement(By.Id("search-desktop"));
-            searchField.SendKeys(searchTerm);
+            searchField.SendKeys(productId);
             searchField.SendKeys(Keys.Enter);
 
             WaitForMilliseconds(5000);
@@ -97,19 +119,23 @@ namespace CSI.WebScraping.Services.Wesco
 
             // NOTE - Space after each class name is mandatory
             var productInfoAttrElements = driver.FindElements(By.CssSelector(".product-info .product-attributes .attribute-value"));
-            var isProductFound = productInfoAttrElements.Any(p => p.Text.Contains(searchTerm));
+            var isProductFound = productInfoAttrElements.Any(p => p.Text.Contains(productId));
+
+            var product = new Product { Id = productId, Found = isProductFound };
 
             if (isProductFound)
             {
+                // TODO: Get product name too
+
                 var priceSpan = driver.FindElement(By.CssSelector(".product-info .product-pricing .js-priceDisplay"));
                 var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
 
-                Logger.LogSuccess($"Product with search term '{searchTerm}' found. Price: {productPrice}");
+                bgWorker.ReportProgress(0, $"Product with Id '{productId}' found. Price: {productPrice}");
+
+                product.Price = productPrice;
             }
-            else
-            {
-                Logger.LogWarning($"Product with search term '{searchTerm}' not found.");
-            }
+
+            return product;
         }
 
         private static void WaitForMilliseconds(int milliseconds)
