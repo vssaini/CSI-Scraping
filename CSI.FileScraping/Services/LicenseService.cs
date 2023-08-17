@@ -2,23 +2,17 @@
 {
     internal class LicenseService
     {
-        private readonly string _licenseFileName = "Aspose.License.lic";
+        private const string LicenseFileName = "Aspose.License.lic";
 
         public void SetLicense()
         {
-            SetPdfLicense();
             SetCellsLicense();
         }
 
-        private void SetPdfLicense()
-        {
-            var license = new Aspose.Pdf.License();
-            license.SetLicense(_licenseFileName);
-        }
-        private void SetCellsLicense()
+        private static void SetCellsLicense()
         {
             var license = new Aspose.Cells.License();
-            license.SetLicense(_licenseFileName);
+            license.SetLicense(LicenseFileName);
         }
     }
 }

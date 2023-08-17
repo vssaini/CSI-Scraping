@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using CSI.Common.Config;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.ComponentModel;
@@ -12,9 +13,26 @@ namespace CSI.WebScraping.Services
     internal class ChromeService
     {
         private readonly BackgroundWorker _bgWorker;
+        private ChromeDriverConfig _cdConfig;
+
+        public bool SaveMilestoneScreenshots => _cdConfig.SaveMilestoneScreenshots;
+        public int SleepMilliSeconds => _cdConfig.WaitForMilliSecondsForActions;
+
         public ChromeService(BackgroundWorker bgWorker)
         {
             _bgWorker = bgWorker;
+
+            InitChromeDriverConfig();
+        }
+
+        private void InitChromeDriverConfig()
+        {
+            _cdConfig = new ChromeDriverConfig
+            {
+                HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
+                SaveMilestoneScreenshots = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:SaveMilestoneScreenshots"]),
+                WaitForMilliSecondsForActions = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:WaitForMilliSecondsForActions"])
+            };
         }
 
         public ChromeDriver GetChromeDriver()
@@ -71,19 +89,16 @@ namespace CSI.WebScraping.Services
 
         public void Login(WebDriver driver)
         {
-            var loginUrl = ConfigurationManager.AppSettings["WescoLoginUrl"];
-            var username = ConfigurationManager.AppSettings["WescoUsername"];
-            var password = ConfigurationManager.AppSettings["WescoPassword"];
+            var wesConfig = GetWescoConfig();
 
-            _bgWorker.ReportProgress(0, $"Logging in to Wesco on URL '{loginUrl}' with username '{username}' and password '{password}'");
+            _bgWorker.ReportProgress(0, $"Logging in to Wesco on URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
 
-            driver.Navigate().GoToUrl(loginUrl);
+            driver.Navigate().GoToUrl(wesConfig.LoginUrl);
 
-            driver.FindElement(By.Id("j_username")).SendKeys(username);
-            driver.FindElement(By.Id("j_password")).SendKeys(password);
+            driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
+            driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
 
-            var saveMilestoneScreenshots = ConfigurationManager.AppSettings["ChromeDriver:SaveMilestoneScreenshots"] == "true";
-            if (saveMilestoneScreenshots)
+            if (_cdConfig.SaveMilestoneScreenshots)
             {
                 var snapshot = driver.GetScreenshot();
                 snapshot.SaveAsFile("Screenshot_Wesco_Login.png");
@@ -91,12 +106,17 @@ namespace CSI.WebScraping.Services
 
             driver.FindElement(By.CssSelector("button.button")).Click();
 
-            WaitForMilliseconds(5000);
+            Thread.Sleep(SleepMilliSeconds);
         }
 
-        public void WaitForMilliseconds(int milliseconds)
+        private static WescoConfig GetWescoConfig()
         {
-            Thread.Sleep(milliseconds);
+            return new WescoConfig
+            {
+                LoginUrl = ConfigurationManager.AppSettings["WescoLoginUrl"],
+                Username = ConfigurationManager.AppSettings["WescoUsername"],
+                Password = ConfigurationManager.AppSettings["WescoPassword"]
+            };
         }
     }
 }

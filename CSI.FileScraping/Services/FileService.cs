@@ -1,6 +1,9 @@
-﻿using CSI.Common.Wesco;
+﻿using CSI.Common;
+using CSI.Common.Wesco;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.Reflection;
 
@@ -15,56 +18,71 @@ namespace CSI.FileScraping.Services
             _bgWorker = bgWorker;
         }
 
-        public List<Product> GetProducts(string pdfFilePath)
+        public IEnumerable<Product> GetProducts(string pdfFilePath)
         {
-            var products = new List<Product> { new Product { Id = "PS-114HA", Name = "Complete Power Supply", Price = "1,660.00" } };
+            var startTime = DateTime.Now;
+            _bgWorker.ReportProgress(0, $"Retrieving of products from PDF started at {startTime:T}.");
 
-            ReadPdfAndGenerateExcelFile(pdfFilePath);
+            var dataTable = GetDataFromPdfFile(pdfFilePath);
 
-            // TODO: Prepare list of products by reading excel file
+            for (var i = 0; i < dataTable.Rows.Count; i++)
+            {
+                var row = dataTable.Rows[i];
 
-            return products;
+                var productId = row[1].ToString();
+                if (string.IsNullOrWhiteSpace(productId))
+                {
+                    _bgWorker.ReportProgress(0, $"{i + 1}/{dataTable.Rows.Count} - Skipping as no product Id exist in current row.");
+                    continue;
+                }
+
+                _bgWorker.ReportProgress(0, $"{i + 1}/{dataTable.Rows.Count} - Processing the product '{productId}'");
+
+                yield return new Product
+                {
+                    Id = i + 1,
+                    ProductId = productId,
+                    Name = row[2].ToString(),
+                    Price = row[4].ToString(),
+                    Status = Constants.StatusFound
+                };
+            }
+
+            var dateDiff = DateTime.Now - startTime;
+            _bgWorker.ReportProgress(0, $"Retrieval of products from PDF completed at {DateTime.Now:T} (within {dateDiff.Seconds} seconds).");
         }
 
-        private void ReadPdfAndGenerateExcelFile(string pdfFilePath)
+        private DataTable GetDataFromPdfFile(string pdfFilePath)
         {
-            var dirPath = GetDocsDirectoryPath();
+            var dirPath = GetDirectoryPath();
             var fileName = Path.GetFileNameWithoutExtension(pdfFilePath);
 
             var srcExcelFilePath = $"{dirPath}\\{fileName}_src.xlsx";
             var destExcelFilePath = $"{dirPath}\\{fileName}_dest.xlsx";
 
-            var sautinFileService = new SautinFileService(_bgWorker);
-            sautinFileService.CreateExcelFromTableInPdf(pdfFilePath, srcExcelFilePath);
+            var pdfService = new PdfService(_bgWorker);
+            pdfService.CreateExcelUsingTablesInPdf(pdfFilePath, srcExcelFilePath);
 
-            var asExcelService = new AsposeExcelService(_bgWorker);
-            asExcelService.PrepareExcelFile(srcExcelFilePath, destExcelFilePath);
+            var excelService = new ExcelService(_bgWorker);
+            excelService.MergeSourceSheetsToDestinationFile(srcExcelFilePath, destExcelFilePath);
 
-            DeleteTempExcelFile(srcExcelFilePath);
-            OpenExcelFile(destExcelFilePath);
+            var dataTable = excelService.GetDataFromExcelFile(destExcelFilePath);
+
+            DeleteExcelFile(srcExcelFilePath);
+            DeleteExcelFile(destExcelFilePath);
+
+            return dataTable;
         }
 
-        private static string GetDocsDirectoryPath()
+        private static string GetDirectoryPath()
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dirPath = $"{assemblyPath}\\Docs";
-
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
-
-            return dirPath;
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
-        private void DeleteTempExcelFile(string tempExcelPath)
+        private void DeleteExcelFile(string excelFilePath)
         {
-            _bgWorker.ReportProgress(0, $"Deleting temporary excel file at {tempExcelPath}");
-            File.Delete(tempExcelPath);
-        }
-
-        private void OpenExcelFile(string pathToExcel)
-        {
-            _bgWorker.ReportProgress(0, $"Opening excel file at {pathToExcel}");
-            System.Diagnostics.Process.Start(pathToExcel);
+            _bgWorker.ReportProgress(0, $"Deleting excel file at {excelFilePath}");
+            File.Delete(excelFilePath);
         }
     }
 }

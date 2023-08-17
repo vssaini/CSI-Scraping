@@ -1,4 +1,5 @@
-﻿using CSI.Common.Wesco;
+﻿using CSI.Common;
+using CSI.Common.Wesco;
 using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
@@ -32,22 +33,22 @@ namespace CSI.WebScraping.Services.Wesco
                 var productId = productIds[i];
                 _bgWorker.ReportProgress(0, $"{i + 1}/{productIds.Count} - Searching the product '{productId}'");
 
-                yield return SearchProduct(driver, productId, false);
+                yield return SearchProduct(driver, productId, i);
             }
 
             var dateDiff = DateTime.Now - startTime;
             _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
         }
 
-        private Product SearchProduct(WebDriver driver, string productId, bool saveMilestoneScreenshots)
+        private Product SearchProduct(WebDriver driver, string productId, int counter)
         {
             var searchField = driver.FindElement(By.Id("search-desktop"));
             searchField.SendKeys(productId);
             searchField.SendKeys(Keys.Enter);
 
-            Thread.Sleep(5000);
+            Thread.Sleep(_chromeService.SleepMilliSeconds);
 
-            if (saveMilestoneScreenshots)
+            if (_chromeService.SaveMilestoneScreenshots)
             {
                 var searchShot = driver.GetScreenshot();
                 searchShot.SaveAsFile("Screenshot_Wesco_SearchResult.png");
@@ -57,7 +58,12 @@ namespace CSI.WebScraping.Services.Wesco
             var productInfoAttrElements = driver.FindElements(By.CssSelector(".product-info .product-attributes .attribute-value"));
             var isProductFound = productInfoAttrElements.Any(p => p.Text.Contains(productId));
 
-            var product = new Product { Id = productId, Status = isProductFound ? "Found" : "Not found" };
+            var product = new Product
+            {
+                Id = counter + 1,
+                ProductId = productId,
+                Status = isProductFound ? Constants.StatusFound : Constants.StatusNotFound
+            };
 
             if (isProductFound)
             {

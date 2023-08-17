@@ -68,8 +68,8 @@ namespace CSI.Scrapper
         private void Main_Load(object sender, EventArgs e)
         {
             //txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
-            txtFilePath.Text = "C:\\Users\\Vikram Singh Saini\\Downloads\\Securitech.pdf";
-            btnSearchFile.Enabled = true;
+            //txtFilePath.Text = "C:\\Users\\Vikram Singh Saini\\Downloads\\Securitech.pdf";
+            //btnSearchFile.Enabled = true;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -82,11 +82,11 @@ namespace CSI.Scrapper
                 return;
             }
 
-            PreStepsBeforeSearching();
+            UpdateControlsStateBeforeSearching();
             bgWebWorker.RunWorkerAsync(txtSearchTerm.Text);
         }
 
-        private void PreStepsBeforeSearching()
+        private void UpdateControlsStateBeforeSearching()
         {
             btnSearchWeb.Text = "Searching...";
             btnSearchWeb.Enabled = false;
@@ -157,7 +157,7 @@ namespace CSI.Scrapper
                 return;
             }
 
-            PreStepsBeforeSearching();
+            UpdateControlsStateBeforeSearching();
             bgWebWorker.RunWorkerAsync(txtFilePath.Text);
         }
 

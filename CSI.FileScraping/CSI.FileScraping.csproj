@@ -36,33 +36,28 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Library\Aspose.Cells.dll</HintPath>
     </Reference>
-    <Reference Include="Aspose.PDF, Version=20.6.0.0, Culture=neutral, PublicKeyToken=f0262d67fe233d63, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Library\Aspose.PDF.dll</HintPath>
-    </Reference>
     <Reference Include="SautinSoft.PdfFocus, Version=8.6.1.18, Culture=neutral, PublicKeyToken=0b79b934109b3e9e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Library\SautinSoft.PdfFocus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\AsposeExcelService.cs" />
-    <Compile Include="Services\AsposePdfService.cs" />
+    <Compile Include="Services\ExcelService.cs" />
     <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\LicenseService.cs" />
-    <Compile Include="Services\SautinFileService.cs" />
+    <Compile Include="Services\PdfService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Docs\Securitech.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Library\Aspose.Cells.dll" />
     <Content Include="Library\Aspose.Cells.xml" />
-    <Content Include="Library\Aspose.PDF.dll" />
-    <Content Include="Library\Aspose.PDF.XML" />
     <Content Include="Library\SautinSoft.PdfFocus.dll" />
     <Content Include="Library\SautinSoft.PdfFocus.XML" />
   </ItemGroup>
