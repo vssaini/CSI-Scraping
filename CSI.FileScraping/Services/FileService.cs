@@ -5,17 +5,18 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
-using System.Reflection;
 
 namespace CSI.FileScraping.Services
 {
     public class FileService
     {
         private readonly BackgroundWorker _bgWorker;
+        private readonly string _mainAssemblyFullPath;
 
-        public FileService(BackgroundWorker bgWorker)
+        public FileService(BackgroundWorker bgWorker, string mainAssemblyFullPath)
         {
             _bgWorker = bgWorker;
+            _mainAssemblyFullPath = mainAssemblyFullPath;
         }
 
         public IEnumerable<Product> GetProducts(string pdfFilePath)
@@ -74,9 +75,9 @@ namespace CSI.FileScraping.Services
             return dataTable;
         }
 
-        private static string GetDirectoryPath()
+        private string GetDirectoryPath()
         {
-            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            return Path.GetDirectoryName(_mainAssemblyFullPath);
         }
 
         private void DeleteExcelFile(string excelFilePath)

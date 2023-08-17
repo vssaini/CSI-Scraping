@@ -1,6 +1,7 @@
 ﻿using CSI.Common.Enums;
 using CSI.Common.Wesco;
 using CSI.FileScraping.Services;
+using CSI.Scrapper.Properties;
 using CSI.WebScraping.Services.Wesco;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using CSI.Scrapper.Properties;
 
 namespace CSI.Scrapper
 {
@@ -95,13 +96,13 @@ namespace CSI.Scrapper
             {
                 btnSearchFile.Text = Resources.BtnSearchingStatus;
                 btnSearchFile.Enabled = false;
-                tsLblStatus.Text = Resources.InfoSearchProductFromWeb;
+                tsLblStatus.Text = Resources.InfoSearchProductFromPdf;
             }
             else if (_searchAction == SearchAction.Web)
             {
                 btnSearchWeb.Text = Resources.BtnSearchingStatus;
                 btnSearchWeb.Enabled = false;
-                tsLblStatus.Text = Resources.InfoSearchProductFromPdf;
+                tsLblStatus.Text = Resources.InfoSearchProductFromWeb;
             }
         }
 
@@ -132,19 +133,29 @@ namespace CSI.Scrapper
 
         private void bgWebWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            // TODO: Pass TextLogs for logging and use UserState for displaying progress
-
             if (e.UserState != null)
                 txtLogs.AppendText(e.UserState + Environment.NewLine + Environment.NewLine);
         }
 
         private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            tsLblStatus.Text = Resources.StatusReady;
             tsLblStatus.Image = null;
 
-            btnSearchWeb.Text = btnSearchFile.Text = Resources.BtnSearchDefaultTxt;
-            btnSearchWeb.Enabled = btnSearchFile.Enabled = true;
+            if (e.Error != null)
+            {
+                txtLogs.AppendText("ERROR - " + e.Error);
+
+                tsLblStatus.Image = Resources.Error;
+                tsLblStatus.Text = "Error occurred.";
+            }
+            else
+            {
+                tsLblStatus.Text = Resources.StatusReady;
+                tsLblStatus.Image = null;
+
+                btnSearchWeb.Text = btnSearchFile.Text = Resources.BtnSearchDefaultTxt;
+                btnSearchWeb.Enabled = btnSearchFile.Enabled = true;
+            }
         }
 
         private void btnBrowseFile_Click(object sender, EventArgs e)
@@ -176,7 +187,7 @@ namespace CSI.Scrapper
 
             var filePath = arg as string ?? string.Empty;
 
-            var fileService = new FileService(sender as BackgroundWorker);
+            var fileService = new FileService(sender as BackgroundWorker, Assembly.GetExecutingAssembly().Location);
             var products = fileService.GetProducts(filePath);
 
             foreach (var product in products)
