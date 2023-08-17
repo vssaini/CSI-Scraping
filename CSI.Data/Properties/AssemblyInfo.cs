@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CSI Scraping")]
-[assembly: AssemblyDescription("Scrape various products prices from web and file.")]
+[assembly: AssemblyTitle("CSI.Data")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Everconnect DS")]
-[assembly: AssemblyProduct("CSI Scraping")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CSI.Data")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ffef41d4-aabe-4e2f-b007-0c935b78b818")]
+[assembly: Guid("5bd495b5-ed3c-40f9-b5c5-cf17124d58f7")]
 
 // Version information for an assembly consists of the following four values:
 //

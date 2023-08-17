@@ -92,14 +92,14 @@ namespace CSI.FileScraping.Services
             totalRowCount = sourceRange.RowCount + totalRowCount;
         }
 
-        public DataTable GetDataFromExcelFile(string excelFilePath)
+        public DataTable GetDataFromExcelFile(string excelFilePath, int firstRow)
         {
             _bgWorker.ReportProgress(0, $"Preparing data table from excel file '{excelFilePath}'.");
 
             var wb = new Workbook(excelFilePath);
             var ws = wb.Worksheets[0];
 
-            var dataTable = ws.Cells.ExportDataTable(1, 0, ws.Cells.MaxDataRow + 1, ws.Cells.MaxDataColumn + 1, true);
+            var dataTable = ws.Cells.ExportDataTable(firstRow, 0, ws.Cells.MaxDataRow + 1, ws.Cells.MaxDataColumn + 1, true);
 
             return dataTable;
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.Linq;
 
 namespace CSI.FileScraping.Services
 {
@@ -67,7 +68,7 @@ namespace CSI.FileScraping.Services
             var excelService = new ExcelService(_bgWorker);
             excelService.MergeSourceSheetsToDestinationFile(srcExcelFilePath, destExcelFilePath);
 
-            var dataTable = excelService.GetDataFromExcelFile(destExcelFilePath);
+            var dataTable = excelService.GetDataFromExcelFile(destExcelFilePath, 1);
 
             DeleteExcelFile(srcExcelFilePath);
             DeleteExcelFile(destExcelFilePath);
@@ -84,6 +85,30 @@ namespace CSI.FileScraping.Services
         {
             _bgWorker.ReportProgress(0, $"Deleting excel file at {excelFilePath}");
             File.Delete(excelFilePath);
+        }
+
+        public List<string> GetProductIdsFromExcelFile(string excelFilePath)
+        {
+            var excelService = new ExcelService(_bgWorker);
+            var dataTable = excelService.GetDataFromExcelFile(excelFilePath, 0);
+
+            var productIds = new List<string>();
+
+            for (var i = 0; i < dataTable.Rows.Count; i++)
+            {
+                var row = dataTable.Rows[i];
+
+                var productId = row[1].ToString();
+                if (string.IsNullOrWhiteSpace(productId))
+                    continue;
+
+                productIds.Add(productId);
+            }
+
+            productIds = productIds.Distinct().ToList();
+            _bgWorker.ReportProgress(0, $"Total {productIds.Count} unique product Ids found in excel file.");
+
+            return productIds;
         }
     }
 }

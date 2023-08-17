@@ -117,6 +117,15 @@ namespace CSI.Scrapper.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please select a file with all products..
+        /// </summary>
+        internal static string ErrorMsgForMissingExcelFile {
+            get {
+                return ResourceManager.GetString("ErrorMsgForMissingExcelFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please select a file to search..
         /// </summary>
         internal static string ErrorMsgForMissingFile {
@@ -135,6 +144,25 @@ namespace CSI.Scrapper.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Info {
+            get {
+                object obj = ResourceManager.GetObject("Info", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please wait! Searching products from Wesco using Excel....
+        /// </summary>
+        internal static string InfoSearchProductFromExcel {
+            get {
+                return ResourceManager.GetString("InfoSearchProductFromExcel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please wait! Searching products from PDF....
         /// </summary>
         internal static string InfoSearchProductFromPdf {
@@ -144,7 +172,7 @@ namespace CSI.Scrapper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please wait! Searching products from Web....
+        ///   Looks up a localized string similar to Please wait! Searching products from Wesco....
         /// </summary>
         internal static string InfoSearchProductFromWeb {
             get {
@@ -158,6 +186,25 @@ namespace CSI.Scrapper.Properties {
         internal static string MsgBoxErrorCaption {
             get {
                 return ResourceManager.GetString("MsgBoxErrorCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SearchWeb {
+            get {
+                object obj = ResourceManager.GetObject("SearchWeb", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred..
+        /// </summary>
+        internal static string StatusError {
+            get {
+                return ResourceManager.GetString("StatusError", resourceCulture);
             }
         }
         

@@ -37,12 +37,27 @@
     <ApplicationIcon>Resources\Web Scrape.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -51,6 +66,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
@@ -89,6 +107,10 @@
       <Project>{8820966d-34bb-4cc9-9b08-e6edbf9c14e9}</Project>
       <Name>CSI.FileScraping</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CSI.Services\CSI.Services.csproj">
+      <Project>{e387a21e-0e04-4489-905c-7d8948e26107}</Project>
+      <Name>CSI.Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSI.WebScraping\CSI.WebScraping.csproj">
       <Project>{95a77866-645f-4f16-b45c-dcad68ac626c}</Project>
       <Name>CSI.WebScraping</Name>
@@ -97,6 +119,8 @@
   <ItemGroup>
     <Content Include="Resources\BlueLoader.gif" />
     <Content Include="Resources\Error.png" />
+    <None Include="Resources\SearchWeb.png" />
+    <None Include="Resources\Info.png" />
     <Content Include="Resources\Web Scrape.ico" />
   </ItemGroup>
   <ItemGroup />

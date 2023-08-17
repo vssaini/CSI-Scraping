@@ -136,20 +136,35 @@
   <data name="Error" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="ErrorMsgForMissingExcelFile" xml:space="preserve">
+    <value>Please select a file with all products.</value>
+  </data>
   <data name="ErrorMsgForMissingFile" xml:space="preserve">
     <value>Please select a file to search.</value>
   </data>
   <data name="ErrorMsgForMissingProductIds" xml:space="preserve">
     <value>Please enter comma separated product Id.</value>
   </data>
+  <data name="Info" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Info.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="InfoSearchProductFromExcel" xml:space="preserve">
+    <value>Please wait! Searching products from Wesco using Excel...</value>
+  </data>
   <data name="InfoSearchProductFromPdf" xml:space="preserve">
     <value>Please wait! Searching products from PDF...</value>
   </data>
   <data name="InfoSearchProductFromWeb" xml:space="preserve">
-    <value>Please wait! Searching products from Web...</value>
+    <value>Please wait! Searching products from Wesco...</value>
   </data>
   <data name="MsgBoxErrorCaption" xml:space="preserve">
     <value>Error</value>
+  </data>
+  <data name="SearchWeb" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SearchWeb.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="StatusError" xml:space="preserve">
+    <value>An error occurred.</value>
   </data>
   <data name="StatusReady" xml:space="preserve">
     <value>Ready</value>

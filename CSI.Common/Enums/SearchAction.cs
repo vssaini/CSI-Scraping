@@ -3,6 +3,7 @@
     public enum SearchAction
     {
         Web,
-        File
+        Pdf,
+        Excel
     }
 }

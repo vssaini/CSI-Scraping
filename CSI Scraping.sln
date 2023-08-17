@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSI.FileScraping", "CSI.Fil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSI.Common", "CSI.Common\CSI.Common.csproj", "{F8C62496-6D6E-47FE-AE5F-9FCDC8D8CD8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSI.Data", "CSI.Data\CSI.Data.csproj", "{5BD495B5-ED3C-40F9-B5C5-CF17124D58F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSI.Services", "CSI.Services\CSI.Services.csproj", "{E387A21E-0E04-4489-905C-7D8948E26107}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{F8C62496-6D6E-47FE-AE5F-9FCDC8D8CD8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8C62496-6D6E-47FE-AE5F-9FCDC8D8CD8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8C62496-6D6E-47FE-AE5F-9FCDC8D8CD8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BD495B5-ED3C-40F9-B5C5-CF17124D58F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BD495B5-ED3C-40F9-B5C5-CF17124D58F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BD495B5-ED3C-40F9-B5C5-CF17124D58F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BD495B5-ED3C-40F9-B5C5-CF17124D58F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E387A21E-0E04-4489-905C-7D8948E26107}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E387A21E-0E04-4489-905C-7D8948E26107}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E387A21E-0E04-4489-905C-7D8948E26107}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E387A21E-0E04-4489-905C-7D8948E26107}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
