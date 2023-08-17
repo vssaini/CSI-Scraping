@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using CSI.Scrapper.Properties;
 
 namespace CSI.Scrapper
 {
@@ -55,12 +56,12 @@ namespace CSI.Scrapper
 
         private static void CrashHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            MessageBox.Show("Program Error:" + e);
+            MessageBox.Show(Resources.CrashProgramError + " " + e);
         }
 
         private static void CrashHandler_thread(object sender, ThreadExceptionEventArgs e)
         {
-            MessageBox.Show("Thread Error: " + e);
+            MessageBox.Show(Resources.CrashThreadError + " " + e);
         }
 
         #endregion
@@ -68,8 +69,6 @@ namespace CSI.Scrapper
         private void Main_Load(object sender, EventArgs e)
         {
             //txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
-            //txtFilePath.Text = "C:\\Users\\Vikram Singh Saini\\Downloads\\Securitech.pdf";
-            //btnSearchFile.Enabled = true;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -78,7 +77,7 @@ namespace CSI.Scrapper
 
             if (string.IsNullOrWhiteSpace(txtSearchTerm.Text))
             {
-                MessageBox.Show("Please enter comma separated product Id.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Resources.ErrorMsgForMissingProductIds, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -88,14 +87,22 @@ namespace CSI.Scrapper
 
         private void UpdateControlsStateBeforeSearching()
         {
-            btnSearchWeb.Text = "Searching...";
-            btnSearchWeb.Enabled = false;
-
             txtLogs.Text = string.Empty;
-            tsLblStatus.Text = "Please wait! Searching products...";
-            tsLblStatus.Image = Properties.Resources.BlueLoader;
-
+            tsLblStatus.Image = Resources.BlueLoader;
             gvProducts.DataSource = _bindingSource;
+
+            if (_searchAction == SearchAction.File)
+            {
+                btnSearchFile.Text = Resources.BtnSearchingStatus;
+                btnSearchFile.Enabled = false;
+                tsLblStatus.Text = Resources.InfoSearchProductFromWeb;
+            }
+            else if (_searchAction == SearchAction.Web)
+            {
+                btnSearchWeb.Text = Resources.BtnSearchingStatus;
+                btnSearchWeb.Enabled = false;
+                tsLblStatus.Text = Resources.InfoSearchProductFromPdf;
+            }
         }
 
         private void bgWebWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -108,6 +115,8 @@ namespace CSI.Scrapper
 
         private void PopulateProductsFromWeb(object sender, object arg)
         {
+            _products.Clear();
+
             var productIds = arg is string productIdTxt
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
@@ -131,11 +140,11 @@ namespace CSI.Scrapper
 
         private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            tsLblStatus.Text = "Ready";
+            tsLblStatus.Text = Resources.StatusReady;
             tsLblStatus.Image = null;
 
-            btnSearchWeb.Text = "Search";
-            btnSearchWeb.Enabled = true;
+            btnSearchWeb.Text = btnSearchFile.Text = Resources.BtnSearchDefaultTxt;
+            btnSearchWeb.Enabled = btnSearchFile.Enabled = true;
         }
 
         private void btnBrowseFile_Click(object sender, EventArgs e)
@@ -153,7 +162,7 @@ namespace CSI.Scrapper
 
             if (string.IsNullOrWhiteSpace(txtFilePath.Text))
             {
-                MessageBox.Show("Please select a file to search.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Resources.ErrorMsgForMissingFile, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -163,6 +172,8 @@ namespace CSI.Scrapper
 
         private void PopulateProductsFromFile(object sender, object arg)
         {
+            _products.Clear();
+
             var filePath = arg as string ?? string.Empty;
 
             var fileService = new FileService(sender as BackgroundWorker);

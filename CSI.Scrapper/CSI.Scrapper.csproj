@@ -105,5 +105,6 @@
     <Content Include="Resources\BlueLoader.gif" />
     <Content Include="Resources\Web Scrape.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

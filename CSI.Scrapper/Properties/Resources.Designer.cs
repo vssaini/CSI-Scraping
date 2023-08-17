@@ -69,5 +69,95 @@ namespace CSI.Scrapper.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        internal static string BtnSearchDefaultTxt {
+            get {
+                return ResourceManager.GetString("BtnSearchDefaultTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching....
+        /// </summary>
+        internal static string BtnSearchingStatus {
+            get {
+                return ResourceManager.GetString("BtnSearchingStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Program Error:.
+        /// </summary>
+        internal static string CrashProgramError {
+            get {
+                return ResourceManager.GetString("CrashProgramError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thread Error:.
+        /// </summary>
+        internal static string CrashThreadError {
+            get {
+                return ResourceManager.GetString("CrashThreadError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select a file to search..
+        /// </summary>
+        internal static string ErrorMsgForMissingFile {
+            get {
+                return ResourceManager.GetString("ErrorMsgForMissingFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter comma separated product Id..
+        /// </summary>
+        internal static string ErrorMsgForMissingProductIds {
+            get {
+                return ResourceManager.GetString("ErrorMsgForMissingProductIds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please wait! Searching products from PDF....
+        /// </summary>
+        internal static string InfoSearchProductFromPdf {
+            get {
+                return ResourceManager.GetString("InfoSearchProductFromPdf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please wait! Searching products from Web....
+        /// </summary>
+        internal static string InfoSearchProductFromWeb {
+            get {
+                return ResourceManager.GetString("InfoSearchProductFromWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string MsgBoxErrorCaption {
+            get {
+                return ResourceManager.GetString("MsgBoxErrorCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        internal static string StatusReady {
+            get {
+                return ResourceManager.GetString("StatusReady", resourceCulture);
+            }
+        }
     }
 }
