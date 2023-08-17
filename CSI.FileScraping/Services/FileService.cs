@@ -1,4 +1,5 @@
-﻿using CSI.Common;
+﻿using CSI.Common.Wesco;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -14,14 +15,21 @@ namespace CSI.FileScraping.Services
             _bgWorker = bgWorker;
         }
 
-        public void ReadPdfAndGenerateExcelFile(string pdfFilePath)
+        public List<Product> GetProducts(string pdfFilePath)
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dirPath = $"{assemblyPath}\\Docs";
-            const string fileName = "Securitech";
+            var products = new List<Product> { new Product { Id = "PS-114HA", Name = "Complete Power Supply", Price = "1,660.00" } };
 
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
+            ReadPdfAndGenerateExcelFile(pdfFilePath);
+
+            // TODO: Prepare list of products by reading excel file
+
+            return products;
+        }
+
+        private void ReadPdfAndGenerateExcelFile(string pdfFilePath)
+        {
+            var dirPath = GetDocsDirectoryPath();
+            var fileName = Path.GetFileNameWithoutExtension(pdfFilePath);
 
             var srcExcelFilePath = $"{dirPath}\\{fileName}_src.xlsx";
             var destExcelFilePath = $"{dirPath}\\{fileName}_dest.xlsx";
@@ -29,22 +37,33 @@ namespace CSI.FileScraping.Services
             var sautinFileService = new SautinFileService(_bgWorker);
             sautinFileService.CreateExcelFromTableInPdf(pdfFilePath, srcExcelFilePath);
 
-            //var asExcelService = new AsposeExcelService();
-            //asExcelService.PrepareExcelFile(srcExcelFilePath, destExcelFilePath);
+            var asExcelService = new AsposeExcelService(_bgWorker);
+            asExcelService.PrepareExcelFile(srcExcelFilePath, destExcelFilePath);
 
-            //DeleteTempExcelFile(srcExcelFilePath);
-            OpenExcelFile(srcExcelFilePath);
+            DeleteTempExcelFile(srcExcelFilePath);
+            OpenExcelFile(destExcelFilePath);
         }
 
-        private static void DeleteTempExcelFile(string tempExcelPath)
+        private static string GetDocsDirectoryPath()
         {
-            Logger.LogInfo($"Deleting temporary excel file at {tempExcelPath}");
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dirPath = $"{assemblyPath}\\Docs";
+
+            if (!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+
+            return dirPath;
+        }
+
+        private void DeleteTempExcelFile(string tempExcelPath)
+        {
+            _bgWorker.ReportProgress(0, $"Deleting temporary excel file at {tempExcelPath}");
             File.Delete(tempExcelPath);
         }
 
-        private static void OpenExcelFile(string pathToExcel)
+        private void OpenExcelFile(string pathToExcel)
         {
-            Logger.LogSuccess($"Opening excel file at {pathToExcel}");
+            _bgWorker.ReportProgress(0, $"Opening excel file at {pathToExcel}");
             System.Diagnostics.Process.Start(pathToExcel);
         }
     }

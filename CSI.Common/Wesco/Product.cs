@@ -1,4 +1,4 @@
-﻿namespace CSI.WebScraping.Models.Wesco
+﻿namespace CSI.Common.Wesco
 {
     public class Product
     {

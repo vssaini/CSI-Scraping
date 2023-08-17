@@ -1,4 +1,4 @@
-﻿using CSI.WebScraping.Models.Wesco;
+﻿using CSI.Common.Wesco;
 using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;

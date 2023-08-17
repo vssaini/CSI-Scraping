@@ -1,6 +1,6 @@
 ﻿using CSI.Common.Enums;
+using CSI.Common.Wesco;
 using CSI.FileScraping.Services;
-using CSI.WebScraping.Models.Wesco;
 using CSI.WebScraping.Services.Wesco;
 using System;
 using System.Collections.Generic;
@@ -68,6 +68,8 @@ namespace CSI.Scrapper
         private void Main_Load(object sender, EventArgs e)
         {
             //txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
+            txtFilePath.Text = "C:\\Users\\Vikram Singh Saini\\Downloads\\Securitech.pdf";
+            btnSearchFile.Enabled = true;
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -156,22 +158,20 @@ namespace CSI.Scrapper
             }
 
             PreStepsBeforeSearching();
-            bgWebWorker.RunWorkerAsync();
+            bgWebWorker.RunWorkerAsync(txtFilePath.Text);
         }
 
         private void PopulateProductsFromFile(object sender, object arg)
         {
-            //var productIds = arg is string productIdTxt
-            //    ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
-            //    : new List<string>();
+            var filePath = arg as string ?? string.Empty;
 
             var fileService = new FileService(sender as BackgroundWorker);
-            fileService.ReadPdfAndGenerateExcelFile(txtFilePath.Text);
+            var products = fileService.GetProducts(filePath);
 
-            //foreach (var wsProduct in wsProducts)
-            //{
-            //    _products.Add(wsProduct);
-            //}
+            foreach (var product in products)
+            {
+                _products.Add(product);
+            }
         }
     }
 }

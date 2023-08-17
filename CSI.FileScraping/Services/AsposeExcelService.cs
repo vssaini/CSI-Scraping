@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Aspose.Cells;
+using System;
+using System.ComponentModel;
 using System.IO;
-using Aspose.Cells;
-using CSI.Common;
 using Cell = Aspose.Cells.Cell;
 using Cells = Aspose.Cells.Cells;
 using LoadOptions = Aspose.Cells.LoadOptions;
@@ -10,10 +10,12 @@ namespace CSI.FileScraping.Services
 {
     internal class AsposeExcelService
     {
+        private readonly BackgroundWorker _bgWorker;
         private static PasteOptions _pasteOptions;
 
-        public AsposeExcelService()
+        public AsposeExcelService(BackgroundWorker bgWorker)
         {
+            _bgWorker = bgWorker;
             var licService = new LicenseService();
             licService.SetLicense();
 
@@ -49,9 +51,9 @@ namespace CSI.FileScraping.Services
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static void CopyCellsFromSourceToDestinationExcelFile(Workbook srcWb, Workbook destWb)
+        private void CopyCellsFromSourceToDestinationExcelFile(Workbook srcWb, Workbook destWb)
         {
-            Logger.LogWarning("Copying cells from source to destination Excel file");
+            _bgWorker.ReportProgress(0, "Copying cells from source to destination Excel file");
 
             //Worksheet srcSheet = srcWb.Worksheets[0];
             Worksheet destSheet = destWb.Worksheets[0];
@@ -61,7 +63,7 @@ namespace CSI.FileScraping.Services
 
             foreach (var ws in srcWb.Worksheets)
             {
-                Logger.LogInfo($"Processing worksheet - {ws.Name}");
+                _bgWorker.ReportProgress(0, $"Processing worksheet - {ws.Name}");
 
                 var cells = ws.Cells;
 
@@ -70,7 +72,6 @@ namespace CSI.FileScraping.Services
                 var srcEndRowIndex = cells.MaxDataRow + 1;
 
                 var srcFirstCellName = $"A{srcStartRowIndex}";
-
 
                 var srcFirstCellText = Convert.ToString(cells[srcFirstCellName].Value);
                 if (!srcFirstCellText.StartsWith("Nominal") && !srcFirstCellText.StartsWith("Pad")) continue;
@@ -88,7 +89,7 @@ namespace CSI.FileScraping.Services
 
                 // Source range to be copied
                 var srcAddress = $"{srcFirstCellName}:{srcEndCellName}";
-                Logger.LogInfo($"Creating source range {srcAddress}");
+                _bgWorker.ReportProgress(0, $"Creating source range {srcAddress}");
                 Range sourceRange = ws.Cells.CreateRange(srcAddress);
 
                 int destStartRowIndex;
@@ -111,7 +112,7 @@ namespace CSI.FileScraping.Services
                 var destEndCellName = $"F{destEndRowIndex}";
 
                 var destAddress = $"{destFirstCellName}:{destEndCellName}";
-                Logger.LogInfo($"Creating destination range {destAddress}");
+                _bgWorker.ReportProgress(0, $"Creating destination range {destAddress}");
                 Range destRange = destSheet.Cells.CreateRange(destAddress);
 
                 var options = new PasteOptions
@@ -121,14 +122,12 @@ namespace CSI.FileScraping.Services
                 };
 
                 destRange.Copy(sourceRange, options);
-
-
             }
         }
 
-        private static void MergeSheetsFromSourceToDestination(Workbook srcWb, Workbook destWb)
+        private void MergeSheetsFromSourceToDestination(Workbook srcWb, Workbook destWb)
         {
-            Logger.LogWarning("Copying cells from source to destination Excel file");
+            _bgWorker.ReportProgress(0, "Merging cells from source to destination Excel file");
 
             Worksheet destSheet = destWb.Worksheets[0];
 
@@ -140,27 +139,29 @@ namespace CSI.FileScraping.Services
 
                 try
                 {
-                    Logger.LogInfo($"Processing worksheet - {srcSheet.Name}");
+                    _bgWorker.ReportProgress(0, $"Processing worksheet - {srcSheet.Name}");
 
-                    var srcCells = srcSheet.Cells;
+                    //var srcCells = srcSheet.Cells;
 
-                    var srcStartRowIndex = srcCells.MinDataRow + 1;
-                    var srcFirstCellName = $"A{srcStartRowIndex}";
-                    var srcFirstCellText = Convert.ToString(srcCells[srcFirstCellName].Value);
-                    if (!srcFirstCellText.StartsWith("Nominal") && !srcFirstCellText.StartsWith("Pad")) continue;
+                    //var srcStartRowIndex = srcCells.MinDataRow + 1;
+                    //var srcFirstCellName = $"A{srcStartRowIndex}";
+                    //var srcFirstCellText = Convert.ToString(srcCells[srcFirstCellName].Value);
+                    //if (!srcFirstCellText.StartsWith("Nominal") && !srcFirstCellText.StartsWith("Pad")) continue;
 
-                    if (srcFirstCellText.StartsWith("Nominal"))
-                    {
-                        MergeSheetsByRange(srcSheet, destSheet, ref totalRowCount);
-                    }
-                    else
-                    {
-                        MergeSheetsByRangeForPadAndRoll(srcSheet, destSheet, ref totalRowCount);
-                    }
+                    MergeSheetsByRange(srcSheet, destSheet, ref totalRowCount);
+
+                    //if (srcFirstCellText.StartsWith("Nominal"))
+                    //{
+                    //    MergeSheetsByRange(srcSheet, destSheet, ref totalRowCount);
+                    //}
+                    //else
+                    //{
+                    //    MergeSheetsByRangeForPadAndRoll(srcSheet, destSheet, ref totalRowCount);
+                    //}
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, true);
+                    _bgWorker.ReportProgress(0, $"Error processing worksheet - {srcSheet.Name}. ERROR - {e.Message}");
                 }
             }
         }
@@ -354,7 +355,7 @@ namespace CSI.FileScraping.Services
 
         public void DeleteColumnsInExcel(string tempExcelPath, string pathToExcel)
         {
-            Logger.LogInfo("Deleting extra columns on right side starting from 6th index");
+            _bgWorker.ReportProgress(0, "Deleting extra columns on right side starting from 6th index");
 
             // Creating a file stream containing the Excel file to be opened
             var fStream = new FileStream(tempExcelPath, FileMode.Open);
@@ -380,7 +381,7 @@ namespace CSI.FileScraping.Services
             worksheet.Cells.DeleteColumns(6, numOfColumnsToDelete, false);
 
             // Saving the modified Excel file
-            Logger.LogInfo($"Saving modified excel file at {pathToExcel}");
+            _bgWorker.ReportProgress(0, $"Saving modified excel file at {pathToExcel}");
             workbook.Save(pathToExcel);
 
             // Closing the file stream to free all resources
