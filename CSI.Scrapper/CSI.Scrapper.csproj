@@ -86,6 +86,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSI.Common\CSI.Common.csproj">
+      <Project>{F8C62496-6D6E-47FE-AE5F-9FCDC8D8CD8B}</Project>
+      <Name>CSI.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSI.FileScraping\CSI.FileScraping.csproj">
       <Project>{8820966d-34bb-4cc9-9b08-e6edbf9c14e9}</Project>
       <Name>CSI.FileScraping</Name>

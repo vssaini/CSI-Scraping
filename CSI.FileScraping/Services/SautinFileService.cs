@@ -1,16 +1,35 @@
-﻿using System;
+﻿using SautinSoft;
+using System;
+using System.ComponentModel;
 using System.Globalization;
-using CSI.Common;
-using SautinSoft;
 
 namespace CSI.FileScraping.Services
 {
     internal class SautinFileService
     {
-        public static void CreateExcelFromTableInPdf(string pathToPdf, string pathToExcel)
-        {
-            Logger.LogInfo("Creating Excel with tables in PDF.");
+        private readonly BackgroundWorker _bgWorker;
 
+        public SautinFileService(BackgroundWorker bgWorker)
+        {
+            _bgWorker = bgWorker;
+        }
+
+        public void CreateExcelFromTableInPdf(string pathToPdf, string pathToExcel)
+        {
+            _bgWorker.ReportProgress(0, "Creating Excel with tables in PDF.");
+
+            try
+            {
+                CreateExcelFile(pathToPdf, pathToExcel);
+            }
+            catch (Exception e)
+            {
+                _bgWorker.ReportProgress(0, $"ERROR - {e.Message}.");
+            }
+        }
+
+        private void CreateExcelFile(string pathToPdf, string pathToExcel)
+        {
             // Convert only tables from PDF to XLS spreadsheet and skip all textual data.
             var pdfFocus = new PdfFocus();
 
@@ -33,7 +52,7 @@ namespace CSI.FileScraping.Services
 
             if (pdfFocus.PageCount > 0)
             {
-                Logger.LogInfo("Saving table(s) to excel file");
+                _bgWorker.ReportProgress(0, "Saving table(s) to excel file");
 
                 int result = pdfFocus.ToExcel(pathToExcel, 1, pdfFocus.PageCount);
                 if (result == 0) return;
@@ -44,7 +63,7 @@ namespace CSI.FileScraping.Services
                 throw new Exception("Failed to save excel file");
             }
 
-            Logger.LogWarning("PDF is not having any pages.");
+            _bgWorker.ReportProgress(0, "WARNING - PDF is not having any pages.");
         }
     }
 }

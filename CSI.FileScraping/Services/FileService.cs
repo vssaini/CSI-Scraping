@@ -1,22 +1,33 @@
-﻿using System.IO;
+﻿using CSI.Common;
+using System.ComponentModel;
+using System.IO;
 using System.Reflection;
-using CSI.Common;
 
 namespace CSI.FileScraping.Services
 {
-    internal class FileService
+    public class FileService
     {
-        public static void ReadPdfAndGenerateExcelFile()
+        private readonly BackgroundWorker _bgWorker;
+
+        public FileService(BackgroundWorker bgWorker)
+        {
+            _bgWorker = bgWorker;
+        }
+
+        public void ReadPdfAndGenerateExcelFile(string pdfFilePath)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var dirPath = $"{assemblyPath}\\Docs";
             const string fileName = "Securitech";
 
-            var pdfFilePath = $"{dirPath}\\{fileName}.pdf";
+            if (!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+
             var srcExcelFilePath = $"{dirPath}\\{fileName}_src.xlsx";
             var destExcelFilePath = $"{dirPath}\\{fileName}_dest.xlsx";
 
-            SautinFileService.CreateExcelFromTableInPdf(pdfFilePath, srcExcelFilePath);
+            var sautinFileService = new SautinFileService(_bgWorker);
+            sautinFileService.CreateExcelFromTableInPdf(pdfFilePath, srcExcelFilePath);
 
             //var asExcelService = new AsposeExcelService();
             //asExcelService.PrepareExcelFile(srcExcelFilePath, destExcelFilePath);
