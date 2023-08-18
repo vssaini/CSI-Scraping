@@ -31,7 +31,8 @@ namespace CSI.WebScraping.Services
             {
                 HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
                 SaveMilestoneScreenshots = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:SaveMilestoneScreenshots"]),
-                WaitForMilliSecondsForActions = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:WaitForMilliSecondsForActions"])
+                WaitForMilliSecondsForActions = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:WaitForMilliSecondsForActions"]),
+                ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
             };
         }
 
@@ -56,7 +57,13 @@ namespace CSI.WebScraping.Services
 
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = HideChromeDriverCommandPromptWindow();
-            return new ChromeDriver(chromeDriverService, chromeOptions);
+
+            var driver = new ChromeDriver(chromeDriverService, chromeOptions);
+
+            // Implicitly wait for action or search
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(_cdConfig.ImplicitWaitSeconds);
+
+            return driver;
         }
 
         private static void CloseGhostsChromeDriver()
@@ -106,7 +113,7 @@ namespace CSI.WebScraping.Services
 
             driver.FindElement(By.CssSelector("button.button")).Click();
 
-            Thread.Sleep(SleepMilliSeconds);
+            //Thread.Sleep(SleepMilliSeconds);
         }
 
         private static WescoConfig GetWescoConfig()

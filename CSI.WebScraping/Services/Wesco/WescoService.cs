@@ -42,35 +42,77 @@ namespace CSI.WebScraping.Services.Wesco
 
         private Product SearchProduct(WebDriver driver, string productId, int counter)
         {
-            var searchField = driver.FindElement(By.Id("search-desktop"));
-            searchField.SendKeys(productId);
-            searchField.SendKeys(Keys.Enter);
-
-            Thread.Sleep(_chromeService.SleepMilliSeconds);
-
-            if (_chromeService.SaveMilestoneScreenshots)
-            {
-                var searchShot = driver.GetScreenshot();
-                searchShot.SaveAsFile("Screenshot_Wesco_SearchResult.png");
-            }
-
-            // NOTE - Space after each class name is mandatory
-            var productInfoAttrElements = driver.FindElements(By.CssSelector(".product-info .product-attributes .attribute-value"));
-            var isProductFound = productInfoAttrElements.Any(p => p.Text.Contains(productId));
-
             var product = new Product
             {
                 Id = counter + 1,
                 ProductId = productId,
-                Status = isProductFound ? Constants.StatusFound : Constants.StatusNotFound
+                Status = Constants.StatusNotFound
             };
 
-            if (isProductFound)
+            try
             {
-                var productInfo = driver.FindElement(By.CssSelector(".product-info"));
+                var searchField = driver.FindElement(By.Id("search-desktop"));
+                searchField.SendKeys(productId);
+                searchField.SendKeys(Keys.Enter);
 
-                var productName = productInfo.FindElement(By.CssSelector(".inner-product-heading")).Text;
-                var priceSpan = productInfo.FindElement(By.CssSelector(".product-pricing .js-priceDisplay"));
+                Thread.Sleep(_chromeService.SleepMilliSeconds);
+
+                if (_chromeService.SaveMilestoneScreenshots)
+                {
+                    var searchShot = driver.GetScreenshot();
+                    searchShot.SaveAsFile("Screenshot_Wesco_SearchResult.png");
+                }
+
+                return GetProduct(driver, productId, counter);
+            }
+            catch (Exception e)
+            {
+                _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
+            }
+
+            return product;
+        }
+
+        private Product GetProduct(WebDriver driver, string productId, int counter)
+        {
+            try
+            {
+                return GetSingleProduct(driver, productId, counter);
+            }
+            catch (NoSuchElementException)
+            {
+                _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
+                return GetPaginatedProduct(driver, productId, counter);
+            }
+        }
+
+        private static bool IsProductExist(IWebElement productDiv, string productId, string cssSelectorToFind)
+        {
+            // NOTE - Space after each class name is mandatory
+            var productInfoAttrElements = productDiv.FindElements(By.CssSelector(cssSelectorToFind));
+            return productInfoAttrElements.Any(p => p.Text.Contains(productId));
+        }
+
+        private Product GetSingleProduct(WebDriver driver, string productId, int counter)
+        {
+            var product = new Product
+            {
+                Id = counter + 1,
+                ProductId = productId,
+                Status = Constants.StatusNotFound
+            };
+
+            var productDiv = driver.FindElement(By.CssSelector(".product-info"));
+            var productExist = IsProductExist(productDiv, productId, ".product-attributes .attribute-value");
+
+            if (productExist)
+            {
+                product.Status = Constants.StatusFound;
+
+                var spans = productDiv.FindElements(By.TagName("span"));
+                var productName = spans[1].Text;
+
+                var priceSpan = productDiv.FindElement(By.CssSelector(".product-pricing .price .js-priceDisplay"));
                 var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
 
                 _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
@@ -84,6 +126,55 @@ namespace CSI.WebScraping.Services.Wesco
             }
 
             return product;
+        }
+        
+        private Product GetPaginatedProduct(WebDriver driver, string productId, int counter)
+        {
+            _bgWorker.ReportProgress(0, $"Now attempting to search product '{productId}' in paged element.");
+
+            var product = new Product
+            {
+                Id = counter + 1,
+                ProductId = productId,
+                Status = Constants.StatusNotFound
+            };
+
+            try
+            {
+                var productListDiv = driver.FindElement(By.CssSelector(".productList"));
+                var productExist = IsProductExist(productListDiv, productId, ".product-tile .product-tile-item-details-info .label .value");
+
+                if (productExist)
+                {
+                    product.Status = Constants.StatusFound;
+
+                    var productName = productListDiv.FindElement(By.CssSelector(".product-tile .title-section .title-primary")).Text;
+
+                    var priceSpan = productListDiv.FindElement(By.CssSelector(".cart-item-price .data-price .js-priceDisplay"));
+                    var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
+
+                    _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
+
+                    product.Name = productName;
+                    product.Price = productPrice;
+                }
+                else
+                {
+                    _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
+                }
+
+                return product;
+            }
+            catch (NoSuchElementException e)
+            {
+                _bgWorker.ReportProgress(0, $"Div with class 'productList' not found for the product '{productId}'. Error - {e.Message}");
+                return product;
+            }
+            catch (Exception e)
+            {
+                _bgWorker.ReportProgress(0, $"An error occurred while searching for the paginated product '{productId}'. Error - {e.Message}");
+                return product;
+            }
         }
     }
 }

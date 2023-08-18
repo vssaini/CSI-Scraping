@@ -154,6 +154,8 @@ namespace CSI.Scrapper
                 tsLblStatus.Image = null;
             }
 
+            btnSearchProduct.Text = btnSearchPdfProduct.Text = btnSearchExcelProduct.Text = Resources.BtnSearchDefaultTxt;
+
             btnSearchProduct.Enabled = btnSearchPdfProduct.Enabled = btnSearchExcelProduct.Enabled =
                 btnBrowsePdfFile.Enabled = btnBrowseExcelFile.Enabled = true;
         }

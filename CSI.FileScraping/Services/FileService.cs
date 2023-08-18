@@ -25,20 +25,20 @@ namespace CSI.FileScraping.Services
             var startTime = DateTime.Now;
             _bgWorker.ReportProgress(0, $"Retrieving of products from PDF started at {startTime:T}.");
 
-            var dataTable = GetDataFromPdfFile(pdfFilePath);
+            var rows = GetDataRowsFromPdfFile(pdfFilePath);
 
-            for (var i = 0; i < dataTable.Rows.Count; i++)
+            for (var i = 0; i < rows.Count; i++)
             {
-                var row = dataTable.Rows[i];
+                var row = rows[i];
 
                 var productId = row[1].ToString();
                 if (string.IsNullOrWhiteSpace(productId))
                 {
-                    _bgWorker.ReportProgress(0, $"{i + 1}/{dataTable.Rows.Count} - Skipping as no product Id exist in current row.");
+                    _bgWorker.ReportProgress(0, $"{i + 1}/{rows.Count} - Skipping as no product Id exist in current row.");
                     continue;
                 }
 
-                _bgWorker.ReportProgress(0, $"{i + 1}/{dataTable.Rows.Count} - Processing the product '{productId}'");
+                _bgWorker.ReportProgress(0, $"{i + 1}/{rows.Count} - Processing the product '{productId}'");
 
                 yield return new Product
                 {
@@ -54,7 +54,7 @@ namespace CSI.FileScraping.Services
             _bgWorker.ReportProgress(0, $"Retrieval of products from PDF completed at {DateTime.Now:T} (within {dateDiff.Seconds} seconds).");
         }
 
-        private DataTable GetDataFromPdfFile(string pdfFilePath)
+        private List<DataRow> GetDataRowsFromPdfFile(string pdfFilePath)
         {
             var dirPath = GetDirectoryPath();
             var fileName = Path.GetFileNameWithoutExtension(pdfFilePath);
@@ -68,12 +68,13 @@ namespace CSI.FileScraping.Services
             var excelService = new ExcelService(_bgWorker);
             excelService.MergeSourceSheetsToDestinationFile(srcExcelFilePath, destExcelFilePath);
 
-            var dataTable = excelService.GetDataFromExcelFile(destExcelFilePath, 1);
+            var dataTable = excelService.GetDataFromExcelFile(destExcelFilePath, 0);
 
             DeleteExcelFile(srcExcelFilePath);
             DeleteExcelFile(destExcelFilePath);
 
-            return dataTable;
+            // Get rows where part number is not empty
+            return dataTable.Select("[PART NUMBER]<>''").ToList();
         }
 
         private string GetDirectoryPath()
