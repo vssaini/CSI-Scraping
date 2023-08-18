@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 
 namespace CSI.WebScraping.Services
 {
@@ -16,7 +15,6 @@ namespace CSI.WebScraping.Services
         private ChromeDriverConfig _cdConfig;
 
         public bool SaveMilestoneScreenshots => _cdConfig.SaveMilestoneScreenshots;
-        public int SleepMilliSeconds => _cdConfig.WaitForMilliSecondsForActions;
 
         public ChromeService(BackgroundWorker bgWorker)
         {
@@ -31,7 +29,6 @@ namespace CSI.WebScraping.Services
             {
                 HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
                 SaveMilestoneScreenshots = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:SaveMilestoneScreenshots"]),
-                WaitForMilliSecondsForActions = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:WaitForMilliSecondsForActions"]),
                 ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
             };
         }

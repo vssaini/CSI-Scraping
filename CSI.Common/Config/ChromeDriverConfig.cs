@@ -4,7 +4,6 @@
     {
         public bool HideCommandPromptWindow { get; set; }
         public bool SaveMilestoneScreenshots { get; set; }
-        public int WaitForMilliSecondsForActions { get; set; }
         public int ImplicitWaitSeconds { get; set; }
     }
 }

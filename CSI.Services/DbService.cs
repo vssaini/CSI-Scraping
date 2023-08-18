@@ -29,10 +29,12 @@ namespace CSI.Services
             }
         }
 
-        public bool SaveProducts(IEnumerable<Product> products, int batchId)
+        public bool SaveProducts(List<Product> products, int batchId)
         {
             try
             {
+                _bgWorker.ReportProgress(0, $"Saving {products.Count} products to database using BatchId {batchId}.");
+
                 var stagingProducts = GetStagingProducts(products, batchId);
 
                 using (var ctx = new ScrapperContext())
@@ -53,6 +55,7 @@ namespace CSI.Services
         private static IEnumerable<Staging_ProductExtract> GetStagingProducts(IEnumerable<Product> products, int batchId)
         {
             var stagingProducts = products
+                .Where(p => p.Name != null && p.Price != null)
                 .Select(x => new Staging_ProductExtract
                 {
                     Batch = batchId,

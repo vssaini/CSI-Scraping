@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -23,6 +24,7 @@ namespace CSI.Scrapper.Helpers
         private readonly ObservableCollection<Product> _products;
         private readonly BindingSource _bindingSource;
         private int _batchId, _rowsSaved, _multiplicand = 1;
+        private static int _recordsToSaveInBatch;
 
         public ProductService(BackgroundWorker bgWorker, DataGridView gvProducts)
         {
@@ -51,6 +53,7 @@ namespace CSI.Scrapper.Helpers
 
         private void InitVariables()
         {
+            _recordsToSaveInBatch = Convert.ToInt32(ConfigurationManager.AppSettings["NumberOfRecordsToSaveInBatch"]);
             _batchId = _dbService.GetBatchId();
         }
 
@@ -76,13 +79,13 @@ namespace CSI.Scrapper.Helpers
 
         private void SaveProductsToDb()
         {
-            if (_products.Count <= 100 * _multiplicand)
+            if (_products.Count <= _recordsToSaveInBatch * _multiplicand)
                 return;
 
-            var productsToSave = _products.Skip(_rowsSaved).Take(100);
+            var productsToSave = _products.Skip(_rowsSaved).Take(_recordsToSaveInBatch).ToList();
             _dbService.SaveProducts(productsToSave, _batchId);
 
-            _rowsSaved += 100;
+            _rowsSaved += _recordsToSaveInBatch;
             _multiplicand++;
         }
 

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 
 namespace CSI.WebScraping.Services.Wesco
 {
@@ -55,13 +54,7 @@ namespace CSI.WebScraping.Services.Wesco
                 searchField.SendKeys(productId);
                 searchField.SendKeys(Keys.Enter);
 
-                Thread.Sleep(_chromeService.SleepMilliSeconds);
-
-                if (_chromeService.SaveMilestoneScreenshots)
-                {
-                    var searchShot = driver.GetScreenshot();
-                    searchShot.SaveAsFile("Screenshot_Wesco_SearchResult.png");
-                }
+                SaveScreenShotIfRequested(driver);
 
                 return GetProduct(driver, productId, counter);
             }
@@ -73,6 +66,14 @@ namespace CSI.WebScraping.Services.Wesco
             return product;
         }
 
+        private void SaveScreenShotIfRequested(WebDriver driver)
+        {
+            if (!_chromeService.SaveMilestoneScreenshots) return;
+
+            var searchShot = driver.GetScreenshot();
+            searchShot.SaveAsFile("ScreenShot_Wesco_SearchResult.png");
+        }
+
         private Product GetProduct(WebDriver driver, string productId, int counter)
         {
             try
@@ -82,15 +83,15 @@ namespace CSI.WebScraping.Services.Wesco
             catch (NoSuchElementException)
             {
                 _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
-                return GetPaginatedProduct(driver, productId, counter);
-            }
-        }
+                return new Product
+                {
+                    Id = counter + 1,
+                    ProductId = productId,
+                    Status = Constants.StatusNotFound
+                };
 
-        private static bool IsProductExist(IWebElement productDiv, string productId, string cssSelectorToFind)
-        {
-            // NOTE - Space after each class name is mandatory
-            var productInfoAttrElements = productDiv.FindElements(By.CssSelector(cssSelectorToFind));
-            return productInfoAttrElements.Any(p => p.Text.Contains(productId));
+                //return GetPaginatedProduct(driver, productId, counter);
+            }
         }
 
         private Product GetSingleProduct(WebDriver driver, string productId, int counter)
@@ -127,7 +128,14 @@ namespace CSI.WebScraping.Services.Wesco
 
             return product;
         }
-        
+
+        private static bool IsProductExist(IWebElement productDiv, string productId, string cssSelectorToFind)
+        {
+            // NOTE - Space after each class name is mandatory
+            var productInfoAttrElements = productDiv.FindElements(By.CssSelector(cssSelectorToFind));
+            return productInfoAttrElements.Any(p => p.Text.Contains(productId));
+        }
+
         private Product GetPaginatedProduct(WebDriver driver, string productId, int counter)
         {
             _bgWorker.ReportProgress(0, $"Now attempting to search product '{productId}' in paged element.");
@@ -165,9 +173,9 @@ namespace CSI.WebScraping.Services.Wesco
 
                 return product;
             }
-            catch (NoSuchElementException e)
+            catch (NoSuchElementException)
             {
-                _bgWorker.ReportProgress(0, $"Div with class 'productList' not found for the product '{productId}'. Error - {e.Message}");
+                _bgWorker.ReportProgress(0, $"Div with class 'productList' not found for the product '{productId}'.");
                 return product;
             }
             catch (Exception e)
