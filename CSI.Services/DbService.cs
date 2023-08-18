@@ -42,11 +42,16 @@ namespace CSI.Services
                     ctx.Staging_ProductExtract.AddRange(stagingProducts);
                     ctx.SaveChanges();
 
+                    _bgWorker.ReportProgress(0, $"Saved {products.Count} products to database using BatchId {batchId} successfully!");
+
                     return true;
                 }
             }
             catch (Exception e)
             {
+                while (e.InnerException != null)
+                    e = e.InnerException;
+
                 _bgWorker.ReportProgress(0, $"Error while saving products to database: {e.Message}");
                 return false;
             }
