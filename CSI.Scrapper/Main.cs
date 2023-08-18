@@ -24,6 +24,22 @@ namespace CSI.Scrapper
             _prodService = new ProductService(bgWorker, gvProducts) { MainAssemblyLocation = Assembly.GetExecutingAssembly().Location };
         }
 
+        private void bgWebWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            _prodService.PopulateProducts(_searchAction, e.Argument);
+        }
+
+        private void bgWebWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.UserState != null)
+                txtLogs.AppendText(e.UserState + Environment.NewLine + Environment.NewLine);
+        }
+
+        private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            ResetControlsState(e);
+        }
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             _searchAction = SearchAction.Web;
@@ -38,37 +54,27 @@ namespace CSI.Scrapper
             bgWorker.RunWorkerAsync(txtSearchTerm.Text);
         }
 
-        private void bgWebWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void btnBrowseExcelFile_Click(object sender, EventArgs e)
         {
-            _prodService.PopulateProducts(_searchAction, e.Argument);
+            if (openExcelDialog.ShowDialog() == DialogResult.OK)
+            {
+                txtExcelFilePath.Text = openExcelDialog.FileName;
+                btnSearchExcelProduct.Enabled = !string.IsNullOrWhiteSpace(txtExcelFilePath.Text);
+            }
         }
 
-        private void bgWebWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void btnSearchExcelProduct_Click(object sender, EventArgs e)
         {
-            if (e.UserState != null)
-                txtLogs.AppendText(e.UserState + Environment.NewLine + Environment.NewLine);
-        }
+            _searchAction = SearchAction.Excel;
 
-        private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            tsLblStatus.Image = null;
-
-            if (e.Error != null)
+            if (string.IsNullOrWhiteSpace(txtExcelFilePath.Text))
             {
-                txtLogs.AppendText("ERROR - " + e.Error);
-
-                tsLblStatus.ForeColor = System.Drawing.Color.Red;
-                tsLblStatus.Text = Resources.StatusError;
-                tsLblStatus.Image = Resources.Error;
-            }
-            else
-            {
-                tsLblStatus.ForeColor = System.Drawing.Color.Black;
-                tsLblStatus.Text = Resources.StatusReady;
-                tsLblStatus.Image = null;
+                MessageBox.Show(Resources.ErrorMsgForMissingFile, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            ResetControlsState();
+            UpdateControlsStateBeforeSearching();
+            bgWorker.RunWorkerAsync(txtExcelFilePath.Text);
         }
 
         private void btnBrowsePdfFile_Click(object sender, EventArgs e)
@@ -98,29 +104,6 @@ namespace CSI.Scrapper
         {
             var about = new About();
             about.Show();
-        }
-
-        private void btnBrowseExcelFile_Click(object sender, EventArgs e)
-        {
-            if (openExcelDialog.ShowDialog() == DialogResult.OK)
-            {
-                txtExcelFilePath.Text = openExcelDialog.FileName;
-                btnSearchExcelProduct.Enabled = !string.IsNullOrWhiteSpace(txtExcelFilePath.Text);
-            }
-        }
-
-        private void btnSearchExcelProduct_Click(object sender, EventArgs e)
-        {
-            _searchAction = SearchAction.Excel;
-
-            if (string.IsNullOrWhiteSpace(txtExcelFilePath.Text))
-            {
-                MessageBox.Show(Resources.ErrorMsgForMissingFile, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            UpdateControlsStateBeforeSearching();
-            bgWorker.RunWorkerAsync(txtExcelFilePath.Text);
         }
 
         #region Helper Methods
@@ -154,8 +137,23 @@ namespace CSI.Scrapper
             }
         }
 
-        private void ResetControlsState()
+        private void ResetControlsState(AsyncCompletedEventArgs e)
         {
+            if (e.Error != null)
+            {
+                txtLogs.AppendText("ERROR - " + e.Error);
+
+                tsLblStatus.ForeColor = System.Drawing.Color.Red;
+                tsLblStatus.Text = Resources.StatusError;
+                tsLblStatus.Image = Resources.Error;
+            }
+            else
+            {
+                tsLblStatus.ForeColor = System.Drawing.Color.Black;
+                tsLblStatus.Text = Resources.StatusReady;
+                tsLblStatus.Image = null;
+            }
+
             btnSearchProduct.Enabled = btnSearchPdfProduct.Enabled = btnSearchExcelProduct.Enabled =
                 btnBrowsePdfFile.Enabled = btnBrowseExcelFile.Enabled = true;
         }

@@ -70,7 +70,7 @@ namespace CSI.Scrapper.Helpers
         {
             _bindingSource.ResetBindings(false);
 
-            //_gvProducts.FirstDisplayedScrollingRowIndex = _gvProducts.RowCount - 1;
+            SetGridScrollBarToBottom();
             SaveProductsToDb();
         }
 
@@ -84,6 +84,12 @@ namespace CSI.Scrapper.Helpers
 
             _rowsSaved += 100;
             _multiplicand++;
+        }
+
+        private void SetGridScrollBarToBottom()
+        {
+            if (_gvProducts.RowCount > 0)
+                _gvProducts.FirstDisplayedScrollingRowIndex = _gvProducts.RowCount - 1;
         }
 
         public void PopulateProducts(SearchAction searchAction, object arg)
