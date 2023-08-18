@@ -1,91 +1,27 @@
 ﻿using CSI.Common.Enums;
-using CSI.Common.Wesco;
-using CSI.FileScraping.Services;
+using CSI.Scrapper.Helpers;
 using CSI.Scrapper.Properties;
-using CSI.Services;
-using CSI.WebScraping.Services.Wesco;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace CSI.Scrapper
 {
     public partial class Main : Form
     {
-        private DbService _dbService;
-
-        private ObservableCollection<Product> _products;
-        private BindingSource _bindingSource;
-
+        private ProductService _prodService;
         private SearchAction _searchAction;
-        private int _batchId;
-        private int _rowsSaved;
 
         public Main()
         {
             InitializeComponent();
-
-            ConfigureGlobalErrorHandling();
-
-            InitializeVariables();
+            ErrorHandler.ConfigureGlobalErrorHandling();
         }
-
-        #region Global error handling
-
-        private static void ConfigureGlobalErrorHandling()
-        {
-            // Error handling for application
-            var currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += CrashHandler;
-            Application.ThreadException += CrashHandler_thread;
-        }
-
-        private static void CrashHandler(object sender, UnhandledExceptionEventArgs e)
-        {
-            MessageBox.Show(Resources.CrashProgramError + " " + e, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private static void CrashHandler_thread(object sender, ThreadExceptionEventArgs e)
-        {
-            MessageBox.Show(Resources.CrashThreadError + " " + e, Resources.MsgBoxErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        #endregion
 
         private void Main_Load(object sender, EventArgs e)
         {
-            InitializeVariables();
-
-            _batchId = _dbService.GetBatchId();
-            //txtSearchTerm.Text = "01004-001,01155-001,01241-001,012T88-33180-A3,01473-001,01621-001";
-        }
-
-        private void InitializeVariables()
-        {
-            _dbService = new DbService(bgWorker);
-
-            _products = new ObservableCollection<Product>();
-            _products.CollectionChanged += Products_CollectionChanged;
-
-            _bindingSource = new BindingSource { DataSource = _products, AllowNew = false };
-        }
-
-        private void Products_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // To access control cross-thread
-            if (gvProducts.InvokeRequired)
-            {
-                gvProducts.Invoke(new Action(ResetBindingSourceBindings));
-                return;
-            }
-
-            ResetBindingSourceBindings();
+            _prodService = new ProductService(bgWorker, gvProducts) { MainAssemblyLocation = Assembly.GetExecutingAssembly().Location };
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -104,20 +40,7 @@ namespace CSI.Scrapper
 
         private void bgWebWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            switch (_searchAction)
-            {
-                case SearchAction.Web:
-                    PopulateProductsFromWeb(sender, e.Argument);
-                    break;
-
-                case SearchAction.Pdf:
-                    PopulateProductsFromPdfFile(sender, e.Argument);
-                    break;
-
-                case SearchAction.Excel:
-                    PopulateProductsFromExcelFile(e.Argument);
-                    break;
-            }
+            _prodService.PopulateProducts(_searchAction, e.Argument);
         }
 
         private void bgWebWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -202,23 +125,6 @@ namespace CSI.Scrapper
 
         #region Helper Methods
 
-        private void ResetBindingSourceBindings()
-        {
-            _bindingSource.ResetBindings(false);
-
-            SaveProductsToDb();
-        }
-
-        private void SaveProductsToDb()
-        {
-            if (_products.Count % 100 != 0) return;
-
-            var productsToSave = _products.Skip(_rowsSaved).Take(100);
-            _dbService.SaveProducts(productsToSave, _batchId);
-
-            _rowsSaved += 100;
-        }
-
         private void UpdateControlsStateBeforeSearching()
         {
             txtLogs.Text = string.Empty;
@@ -227,7 +133,7 @@ namespace CSI.Scrapper
             btnSearchProduct.Enabled = btnSearchPdfProduct.Enabled = btnSearchExcelProduct.Enabled =
                 btnBrowsePdfFile.Enabled = btnBrowseExcelFile.Enabled = false;
 
-            gvProducts.DataSource = _bindingSource;
+            gvProducts.DataSource = _prodService.BindingSource;
 
             switch (_searchAction)
             {
@@ -254,58 +160,6 @@ namespace CSI.Scrapper
                 btnBrowsePdfFile.Enabled = btnBrowseExcelFile.Enabled = true;
         }
 
-        private void PopulateProductsFromWeb(object sender, object arg)
-        {
-            _products.Clear();
-
-            var productIds = arg is string productIdTxt
-                ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
-                : new List<string>();
-
-            var ws = new WescoService(sender as BackgroundWorker);
-            var wsProducts = ws.GetProducts(productIds);
-
-            foreach (var wsProduct in wsProducts)
-            {
-                _products.Add(wsProduct);
-            }
-        }
-
-        private void PopulateProductsFromPdfFile(object sender, object arg)
-        {
-            _products.Clear();
-
-            var filePath = arg as string ?? string.Empty;
-
-            var fileService = new FileService(sender as BackgroundWorker, Assembly.GetExecutingAssembly().Location);
-            var products = fileService.GetProducts(filePath);
-
-            foreach (var product in products)
-            {
-                _products.Add(product);
-            }
-        }
-
-        private void PopulateProductsFromExcelFile(object arg)
-        {
-            _products.Clear();
-
-            var excelFilePath = arg as string ?? string.Empty;
-
-            bgWorker.ReportProgress(0, $"Retrieving product Ids from excel file.");
-
-            var fileService = new FileService(bgWorker, Assembly.GetExecutingAssembly().Location);
-            var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
-
-            var ws = new WescoService(bgWorker);
-            var wsProducts = ws.GetProducts(productIds);
-
-            foreach (var wsProduct in wsProducts)
-            {
-                _products.Add(wsProduct);
-            }
-        }
-        
         #endregion
     }
 }

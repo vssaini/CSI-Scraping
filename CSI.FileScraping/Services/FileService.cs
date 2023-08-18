@@ -12,12 +12,12 @@ namespace CSI.FileScraping.Services
     public class FileService
     {
         private readonly BackgroundWorker _bgWorker;
-        private readonly string _mainAssemblyFullPath;
 
-        public FileService(BackgroundWorker bgWorker, string mainAssemblyFullPath)
+        public string MainAssemblyLocation { get; set; }
+
+        public FileService(BackgroundWorker bgWorker)
         {
             _bgWorker = bgWorker;
-            _mainAssemblyFullPath = mainAssemblyFullPath;
         }
 
         public IEnumerable<Product> GetProducts(string pdfFilePath)
@@ -78,7 +78,10 @@ namespace CSI.FileScraping.Services
 
         private string GetDirectoryPath()
         {
-            return Path.GetDirectoryName(_mainAssemblyFullPath);
+            if (string.IsNullOrWhiteSpace(MainAssemblyLocation))
+                throw new Exception("MainAssemblyFullPath is not set.");
+
+            return Path.GetDirectoryName(MainAssemblyLocation);
         }
 
         private void DeleteExcelFile(string excelFilePath)
