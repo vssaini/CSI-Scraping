@@ -77,16 +77,31 @@ namespace CSI.Scrapper.Helpers
             SaveProductsToDb();
         }
 
-        private void SaveProductsToDb()
+        private void SaveProductsToDb(bool saveInBatch = true)
         {
-            if (_products.Count <= _recordsToSaveInBatch * _multiplicand)
-                return;
+            List<Product> productsToSave;
 
-            var productsToSave = _products.Skip(_rowsSaved).Take(_recordsToSaveInBatch).ToList();
-            _dbService.SaveProducts(productsToSave, _batchId);
+            if (saveInBatch)
+            {
+                if (_products.Count <= _recordsToSaveInBatch * _multiplicand)
+                    return;
 
-            _rowsSaved += _recordsToSaveInBatch;
-            _multiplicand++;
+                productsToSave = _products.Skip(_rowsSaved).Take(_recordsToSaveInBatch).ToList();
+                _dbService.SaveProducts(productsToSave, _batchId);
+
+                _rowsSaved += _recordsToSaveInBatch;
+                _multiplicand++;
+            }
+            else
+            {
+                var rowsLeftToSave = _products.Count - _rowsSaved;
+
+                productsToSave = _products.Skip(_rowsSaved).Take(rowsLeftToSave).ToList();
+                _dbService.SaveProducts(productsToSave, _batchId);
+
+                _rowsSaved = 0;
+                _multiplicand = 1;
+            }
         }
 
         private void SetGridScrollBarToBottom()
@@ -163,6 +178,8 @@ namespace CSI.Scrapper.Helpers
             {
                 _products.Add(wsProduct);
             }
+
+            SaveProductsToDb(false);
         }
     }
 }
