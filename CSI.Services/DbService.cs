@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Serilog;
 
 namespace CSI.Services
 {
@@ -52,7 +53,9 @@ namespace CSI.Services
                 while (e.InnerException != null)
                     e = e.InnerException;
 
+                Log.Logger.Error(e, $"Error while saving products to database: {e.Message}");
                 _bgWorker.ReportProgress(0, $"Error while saving products to database: {e.Message}");
+
                 return false;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using SautinSoft;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -24,6 +25,7 @@ namespace CSI.FileScraping.Services
             }
             catch (Exception e)
             {
+                Log.Logger.Error(e, "Failed to create excel file using tables in PDF.");
                 _bgWorker.ReportProgress(0, $"ERROR - {e.Message}.");
             }
         }

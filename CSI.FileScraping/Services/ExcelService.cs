@@ -1,4 +1,5 @@
 ﻿using Aspose.Cells;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -74,6 +75,7 @@ namespace CSI.FileScraping.Services
                 }
                 catch (Exception e)
                 {
+                    Log.Logger.Error(e, $"Error processing worksheet - {srcSheet.Name}");
                     _bgWorker.ReportProgress(0, $"Error processing worksheet - {srcSheet.Name}. ERROR - {e.Message}");
                 }
             }

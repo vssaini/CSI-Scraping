@@ -16,7 +16,6 @@ namespace CSI.Scrapper
         public Main()
         {
             InitializeComponent();
-            ErrorHandler.ConfigureGlobalErrorHandling();
         }
 
         private void Main_Load(object sender, EventArgs e)

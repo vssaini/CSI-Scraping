@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CSI.Scrapper.Helpers;
+using Serilog;
+using System;
 using System.Windows.Forms;
 
 namespace CSI.Scrapper
@@ -11,6 +13,11 @@ namespace CSI.Scrapper
         [STAThread]
         static void Main()
         {
+            Startup.ConfigureLogger();
+            Log.Information("Starting application CSI Scrapper");
+
+            ErrorHandler.ConfigureGlobalErrorHandling();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Main());

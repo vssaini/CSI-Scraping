@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using Log = Serilog.Log;
 
 namespace CSI.WebScraping.Services.Wesco
 {
@@ -54,6 +55,7 @@ namespace CSI.WebScraping.Services.Wesco
             }
             catch (Exception e)
             {
+                Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
                 _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
             }
 
@@ -74,6 +76,7 @@ namespace CSI.WebScraping.Services.Wesco
 
             try
             {
+                Log.Logger.Information($"Saving the screenshot for the product '{productId}'.");
                 _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
 
                 var filePath = Path.Combine(ScreenshotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
@@ -82,6 +85,7 @@ namespace CSI.WebScraping.Services.Wesco
             }
             catch (Exception e)
             {
+                Log.Logger.Error(e, "An error occurred while saving the screenshot for the product '{ProductId}'.", productId);
                 _bgWorker.ReportProgress(0, $"Error occurred while saving the screenshot for the product '{productId}'. Error - {e.Message}");
             }
         }
@@ -97,13 +101,15 @@ namespace CSI.WebScraping.Services.Wesco
 
                 return product ?? ProductNotFound(productId, counter);
             }
-            catch (NoSuchElementException)
+            catch (NoSuchElementException e)
             {
+                Log.Logger.Error(e, "No such element was found.");
                 _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
-                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'. Error - {e.Message}");
+                Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
+                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
             }
 
             return ProductNotFound(productId, counter);
@@ -138,12 +144,14 @@ namespace CSI.WebScraping.Services.Wesco
 
                 _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
             }
-            catch (NoSuchElementException)
+            catch (NoSuchElementException e)
             {
+                Log.Logger.Error(e, "No such element was found.");
                 _bgWorker.ReportProgress(0, $"Div with class 'productList' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
+                Log.Logger.Error(e, "An error occurred while searching for the paginated product '{ProductId}'.", productId);
                 _bgWorker.ReportProgress(0, $"An error occurred while searching for the paginated product '{productId}'. Error - {e.Message}");
             }
 
@@ -187,11 +195,13 @@ namespace CSI.WebScraping.Services.Wesco
             }
             catch (NoSuchElementException e)
             {
-                _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'. Error - {e.Message}");
+                Log.Logger.Error(e, "No such element was found.");
+                _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
-                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'. Error - {e.Message}");
+                Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
+                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
             }
 
             return null;

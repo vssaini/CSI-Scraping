@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using CSI.Common.Config;
 using CSI.Common.Extensions;
+using Serilog;
 
 namespace CSI.Scrapper.Helpers
 {
@@ -117,6 +118,8 @@ namespace CSI.Scrapper.Helpers
 
         public void PopulateProducts(SearchAction searchAction, object arg)
         {
+            Log.Logger.Information("Fetching products via search action {SearchAction}", searchAction);
+
             switch (searchAction)
             {
                 case SearchAction.Web:
@@ -135,6 +138,8 @@ namespace CSI.Scrapper.Helpers
 
         public void CreateScreenshotsDirectory()
         {
+            Log.Logger.Information("Creating screenshots directory.");
+
             var cdConfig = ChromeDriverConfig.GetInstance();
 
             var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
