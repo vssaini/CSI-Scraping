@@ -76,7 +76,6 @@ namespace CSI.WebScraping.Services.Wesco
 
             try
             {
-                Log.Logger.Information($"Saving the screenshot for the product '{productId}'.");
                 _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
 
                 var filePath = Path.Combine(ScreenshotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
