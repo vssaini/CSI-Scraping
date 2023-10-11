@@ -26,6 +26,7 @@ namespace CSI.Scrapper
 
         private void bgWebWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            _prodService.CreateScreenshotsDirectory();
             _prodService.PopulateProducts(_searchAction, e.Argument);
         }
 

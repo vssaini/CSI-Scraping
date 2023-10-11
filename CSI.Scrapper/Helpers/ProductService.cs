@@ -117,8 +117,6 @@ namespace CSI.Scrapper.Helpers
 
         public void PopulateProducts(SearchAction searchAction, object arg)
         {
-            CreateScreenshotsDirectory();
-
             switch (searchAction)
             {
                 case SearchAction.Web:
@@ -135,7 +133,7 @@ namespace CSI.Scrapper.Helpers
             }
         }
 
-        private void CreateScreenshotsDirectory()
+        public void CreateScreenshotsDirectory()
         {
             var cdConfig = ChromeDriverConfig.GetInstance();
 
