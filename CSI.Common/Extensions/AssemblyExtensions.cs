@@ -11,5 +11,4 @@ public static class AssemblyExtensions
         var filePath = new Uri(assembly.CodeBase).LocalPath;
         return Path.GetDirectoryName(filePath);
     }
-
 }

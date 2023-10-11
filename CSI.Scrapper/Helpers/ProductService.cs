@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using CSI.Common.Config;
 using CSI.Common.Extensions;
 
 namespace CSI.Scrapper.Helpers
@@ -28,7 +29,7 @@ namespace CSI.Scrapper.Helpers
         private readonly BindingSource _bindingSource;
         private int _batchId, _rowsSaved, _multiplicand = 1;
         private static int _recordsToSaveInBatch;
-        private string _screenShotDirectoryPath;
+        private string _screenshotDirectoryPath;
 
         public ProductService(BackgroundWorker bgWorker, DataGridView gvProducts)
         {
@@ -136,11 +137,13 @@ namespace CSI.Scrapper.Helpers
 
         private void CreateScreenshotsDirectory()
         {
-            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
-            _screenShotDirectoryPath = Path.Combine(assemblyDirectory, "Screenshots");
+            var cdConfig = ChromeDriverConfig.GetInstance();
 
-            if (!Directory.Exists(_screenShotDirectoryPath))
-                Directory.CreateDirectory(_screenShotDirectoryPath);
+            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
+            _screenshotDirectoryPath = Path.Combine(assemblyDirectory, cdConfig.ScreenshotDirectoryName);
+
+            if (!Directory.Exists(_screenshotDirectoryPath))
+                Directory.CreateDirectory(_screenshotDirectoryPath);
         }
 
         private void PopulateProductsFromWeb(object arg)
@@ -186,7 +189,7 @@ namespace CSI.Scrapper.Helpers
 
         private void PopulateProductsFromWesco(List<string> productIds)
         {
-            var ws = new WescoService(_bgWorker) { ScreenShotsDirectoryPath = _screenShotDirectoryPath }; ;
+            var ws = new WescoService(_bgWorker) { ScreenshotsDirectoryPath = _screenshotDirectoryPath };
             var wsProducts = ws.GetProducts(productIds);
 
             foreach (var wsProduct in wsProducts)

@@ -1,36 +1,26 @@
-﻿using CSI.Common.Config;
+﻿using CSI.Common;
+using CSI.Common.Config;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
-namespace CSI.WebScraping.Services
+namespace CSI.WebScraping.Services.Chrome
 {
     internal class ChromeService
     {
         private readonly BackgroundWorker _bgWorker;
-        private ChromeDriverConfig _cdConfig;
+        private readonly ChromeDriverConfig _cdConfig;
 
-        public bool SaveMilestoneScreenshots => _cdConfig.SaveMilestoneScreenshots;
+        public bool SaveScreenshots => _cdConfig.SaveScreenshots;
 
         public ChromeService(BackgroundWorker bgWorker)
         {
             _bgWorker = bgWorker;
-
-            InitChromeDriverConfig();
-        }
-
-        private void InitChromeDriverConfig()
-        {
-            _cdConfig = new ChromeDriverConfig
-            {
-                HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
-                SaveMilestoneScreenshots = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:SaveMilestoneScreenshots"]),
-                ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
-            };
+            _cdConfig = ChromeDriverConfig.GetInstance();
         }
 
         public ChromeDriver GetChromeDriver()
@@ -53,7 +43,7 @@ namespace CSI.WebScraping.Services
             chromeOptions.AddArgument($"user-agent={userAgent}");
 
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
-            chromeDriverService.HideCommandPromptWindow = HideChromeDriverCommandPromptWindow();
+            chromeDriverService.HideCommandPromptWindow = _cdConfig.HideCommandPromptWindow;
 
             var driver = new ChromeDriver(chromeDriverService, chromeOptions);
 
@@ -78,22 +68,9 @@ namespace CSI.WebScraping.Services
             }
         }
 
-        private static bool HideChromeDriverCommandPromptWindow()
-        {
-            try
-            {
-                var hideCmdPromptVal = ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"];
-                return bool.TryParse(hideCmdPromptVal, out var hideCmdPrompt) && hideCmdPrompt;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public void Login(WebDriver driver)
         {
-            var wesConfig = GetWescoConfig();
+            var wesConfig = WescoConfig.GetInstance();
 
             _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
 
@@ -102,23 +79,20 @@ namespace CSI.WebScraping.Services
             driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
             driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
 
-            if (_cdConfig.SaveMilestoneScreenshots)
-            {
-                var snapshot = driver.GetScreenshot();
-                snapshot.SaveAsFile("Screenshot_Wesco_Login.png");
-            }
+            SaveLoginScreenshot(driver);
 
             driver.FindElement(By.CssSelector("button.button")).Click();
         }
 
-        private static WescoConfig GetWescoConfig()
+        private void SaveLoginScreenshot(WebDriver driver)
         {
-            return new WescoConfig
-            {
-                LoginUrl = ConfigurationManager.AppSettings["WescoLoginUrl"],
-                Username = ConfigurationManager.AppSettings["WescoUsername"],
-                Password = ConfigurationManager.AppSettings["WescoPassword"]
-            };
+            if (!_cdConfig.SaveScreenshots) return;
+
+            _bgWorker.ReportProgress(0, "Saving the screenshot for the Wesco login page.");
+
+            var filePath = Path.Combine(_cdConfig.ScreenshotDirectoryName, $"Wesco_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
+            var screenshot = driver.GetScreenshot();
+            screenshot.SaveAsFile(filePath);
         }
     }
 }

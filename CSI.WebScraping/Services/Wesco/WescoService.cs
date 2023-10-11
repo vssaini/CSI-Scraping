@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using CSI.WebScraping.Services.Chrome;
 
 namespace CSI.WebScraping.Services.Wesco
 {
@@ -14,7 +15,7 @@ namespace CSI.WebScraping.Services.Wesco
         private readonly ChromeService _chromeService;
         private readonly BackgroundWorker _bgWorker;
 
-        public string ScreenShotsDirectoryPath { get; set; }
+        public string ScreenshotsDirectoryPath { get; set; }
 
         public WescoService(BackgroundWorker bgWorker)
         {
@@ -58,7 +59,7 @@ namespace CSI.WebScraping.Services.Wesco
                 searchField.SendKeys(productId);
                 searchField.SendKeys(Keys.Enter);
 
-                SaveScreenShotIfRequested(driver, productId);
+                SaveScreenshotIfRequested(driver, productId);
 
                 return GetProduct(driver, productId, counter);
             }
@@ -70,15 +71,15 @@ namespace CSI.WebScraping.Services.Wesco
             return product;
         }
 
-        private void SaveScreenShotIfRequested(WebDriver driver, string productId)
+        private void SaveScreenshotIfRequested(WebDriver driver, string productId)
         {
-            if (!_chromeService.SaveMilestoneScreenshots) return;
+            if (!_chromeService.SaveScreenshots) return;
 
             try
             {
                 _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
 
-                var filePath = Path.Combine(ScreenShotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now:yyyy-MM-dd_hhmmss}.png");
+                var filePath = Path.Combine(ScreenshotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
                 var searchShot = driver.GetScreenshot();
                 searchShot.SaveAsFile(filePath);
             }
