@@ -70,7 +70,7 @@
             // 
             this.txtSearchTerm.Location = new System.Drawing.Point(220, 27);
             this.txtSearchTerm.Name = "txtSearchTerm";
-            this.txtSearchTerm.Size = new System.Drawing.Size(190, 23);
+            this.txtSearchTerm.Size = new System.Drawing.Size(321, 23);
             this.txtSearchTerm.TabIndex = 2;
             // 
             // gbSearchWeb
@@ -84,14 +84,14 @@
             this.gbSearchWeb.Controls.Add(this.txtSearchTerm);
             this.gbSearchWeb.Location = new System.Drawing.Point(12, 12);
             this.gbSearchWeb.Name = "gbSearchWeb";
-            this.gbSearchWeb.Size = new System.Drawing.Size(518, 102);
+            this.gbSearchWeb.Size = new System.Drawing.Size(639, 102);
             this.gbSearchWeb.TabIndex = 3;
             this.gbSearchWeb.TabStop = false;
             this.gbSearchWeb.Text = "Search web for product price";
             // 
             // btnBrowseExcelFile
             // 
-            this.btnBrowseExcelFile.Location = new System.Drawing.Point(335, 63);
+            this.btnBrowseExcelFile.Location = new System.Drawing.Point(466, 64);
             this.btnBrowseExcelFile.Name = "btnBrowseExcelFile";
             this.btnBrowseExcelFile.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseExcelFile.TabIndex = 5;
@@ -102,7 +102,7 @@
             // btnSearchExcelProduct
             // 
             this.btnSearchExcelProduct.Enabled = false;
-            this.btnSearchExcelProduct.Location = new System.Drawing.Point(425, 64);
+            this.btnSearchExcelProduct.Location = new System.Drawing.Point(547, 64);
             this.btnSearchExcelProduct.Name = "btnSearchExcelProduct";
             this.btnSearchExcelProduct.Size = new System.Drawing.Size(75, 23);
             this.btnSearchExcelProduct.TabIndex = 5;
@@ -114,7 +114,7 @@
             // 
             this.txtExcelFilePath.Location = new System.Drawing.Point(127, 64);
             this.txtExcelFilePath.Name = "txtExcelFilePath";
-            this.txtExcelFilePath.Size = new System.Drawing.Size(196, 23);
+            this.txtExcelFilePath.Size = new System.Drawing.Size(333, 23);
             this.txtExcelFilePath.TabIndex = 5;
             // 
             // lblSelectProduct
@@ -128,7 +128,7 @@
             // 
             // btnSearchProduct
             // 
-            this.btnSearchProduct.Location = new System.Drawing.Point(425, 26);
+            this.btnSearchProduct.Location = new System.Drawing.Point(547, 27);
             this.btnSearchProduct.Name = "btnSearchProduct";
             this.btnSearchProduct.Size = new System.Drawing.Size(75, 23);
             this.btnSearchProduct.TabIndex = 3;
@@ -144,7 +144,7 @@
             this.tsBtnInfo});
             this.toolStrip1.Location = new System.Drawing.Point(0, 537);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(883, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1073, 25);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -175,18 +175,18 @@
             this.gvProducts.Location = new System.Drawing.Point(12, 216);
             this.gvProducts.Name = "gvProducts";
             this.gvProducts.ReadOnly = true;
-            this.gvProducts.Size = new System.Drawing.Size(518, 304);
+            this.gvProducts.Size = new System.Drawing.Size(639, 304);
             this.gvProducts.TabIndex = 5;
             // 
             // txtLogs
             // 
             this.txtLogs.BackColor = System.Drawing.SystemColors.Info;
-            this.txtLogs.Location = new System.Drawing.Point(549, 20);
+            this.txtLogs.Location = new System.Drawing.Point(670, 20);
             this.txtLogs.Multiline = true;
             this.txtLogs.Name = "txtLogs";
             this.txtLogs.ReadOnly = true;
             this.txtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLogs.Size = new System.Drawing.Size(319, 500);
+            this.txtLogs.Size = new System.Drawing.Size(388, 500);
             this.txtLogs.TabIndex = 6;
             this.txtLogs.Text = "Welcome to CSI Scrapper!";
             // 
@@ -205,7 +205,7 @@
             this.gbSearchPdf.Controls.Add(this.txtPdfFilePath);
             this.gbSearchPdf.Location = new System.Drawing.Point(12, 133);
             this.gbSearchPdf.Name = "gbSearchPdf";
-            this.gbSearchPdf.Size = new System.Drawing.Size(518, 64);
+            this.gbSearchPdf.Size = new System.Drawing.Size(639, 64);
             this.gbSearchPdf.TabIndex = 4;
             this.gbSearchPdf.TabStop = false;
             this.gbSearchPdf.Text = "Search file for product price";
@@ -213,7 +213,7 @@
             // btnSearchPdfProduct
             // 
             this.btnSearchPdfProduct.Enabled = false;
-            this.btnSearchPdfProduct.Location = new System.Drawing.Point(425, 26);
+            this.btnSearchPdfProduct.Location = new System.Drawing.Point(547, 27);
             this.btnSearchPdfProduct.Name = "btnSearchPdfProduct";
             this.btnSearchPdfProduct.Size = new System.Drawing.Size(75, 23);
             this.btnSearchPdfProduct.TabIndex = 4;
@@ -223,7 +223,7 @@
             // 
             // btnBrowsePdfFile
             // 
-            this.btnBrowsePdfFile.Location = new System.Drawing.Point(335, 27);
+            this.btnBrowsePdfFile.Location = new System.Drawing.Point(466, 27);
             this.btnBrowsePdfFile.Name = "btnBrowsePdfFile";
             this.btnBrowsePdfFile.Size = new System.Drawing.Size(75, 23);
             this.btnBrowsePdfFile.TabIndex = 3;
@@ -242,9 +242,9 @@
             // 
             // txtPdfFilePath
             // 
-            this.txtPdfFilePath.Location = new System.Drawing.Point(91, 27);
+            this.txtPdfFilePath.Location = new System.Drawing.Point(82, 27);
             this.txtPdfFilePath.Name = "txtPdfFilePath";
-            this.txtPdfFilePath.Size = new System.Drawing.Size(232, 23);
+            this.txtPdfFilePath.Size = new System.Drawing.Size(378, 23);
             this.txtPdfFilePath.TabIndex = 2;
             // 
             // openPdfDialog
@@ -261,7 +261,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(883, 562);
+            this.ClientSize = new System.Drawing.Size(1073, 562);
             this.Controls.Add(this.gbSearchPdf);
             this.Controls.Add(this.txtLogs);
             this.Controls.Add(this.gvProducts);
@@ -271,9 +271,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(899, 601);
+            this.MaximumSize = new System.Drawing.Size(1089, 601);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(899, 601);
+            this.MinimumSize = new System.Drawing.Size(1089, 601);
             this.Name = "Main";
             this.RightToLeftLayout = true;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
