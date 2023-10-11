@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CSI Scraping")]
-[assembly: AssemblyDescription("Scrape various products prices from web and file.")]
+[assembly: AssemblyTitle("CSI Scrapper")]
+[assembly: AssemblyDescription("Scrap various products prices from web and file.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Everconnect DS")]
-[assembly: AssemblyProduct("CSI Scraping")]
+[assembly: AssemblyProduct("CSI Scrapper")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

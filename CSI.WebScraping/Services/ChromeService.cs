@@ -95,7 +95,7 @@ namespace CSI.WebScraping.Services
         {
             var wesConfig = GetWescoConfig();
 
-            _bgWorker.ReportProgress(0, $"Logging in to Wesco on URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
+            _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
 
             driver.Navigate().GoToUrl(wesConfig.LoginUrl);
 
@@ -109,8 +109,6 @@ namespace CSI.WebScraping.Services
             }
 
             driver.FindElement(By.CssSelector("button.button")).Click();
-
-            //Thread.Sleep(SleepMilliSeconds);
         }
 
         private static WescoConfig GetWescoConfig()

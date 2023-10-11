@@ -9,8 +9,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
+using CSI.Common.Extensions;
 
 namespace CSI.Scrapper.Helpers
 {
@@ -25,6 +28,7 @@ namespace CSI.Scrapper.Helpers
         private readonly BindingSource _bindingSource;
         private int _batchId, _rowsSaved, _multiplicand = 1;
         private static int _recordsToSaveInBatch;
+        private string _screenShotDirectoryPath;
 
         public ProductService(BackgroundWorker bgWorker, DataGridView gvProducts)
         {
@@ -112,6 +116,8 @@ namespace CSI.Scrapper.Helpers
 
         public void PopulateProducts(SearchAction searchAction, object arg)
         {
+            CreateScreenshotsDirectory();
+
             switch (searchAction)
             {
                 case SearchAction.Web:
@@ -128,6 +134,15 @@ namespace CSI.Scrapper.Helpers
             }
         }
 
+        private void CreateScreenshotsDirectory()
+        {
+            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
+            _screenShotDirectoryPath = Path.Combine(assemblyDirectory, "Screenshots");
+
+            if (!Directory.Exists(_screenShotDirectoryPath))
+                Directory.CreateDirectory(_screenShotDirectoryPath);
+        }
+
         private void PopulateProductsFromWeb(object arg)
         {
             _products.Clear();
@@ -136,13 +151,7 @@ namespace CSI.Scrapper.Helpers
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
 
-            var ws = new WescoService(_bgWorker);
-            var wsProducts = ws.GetProducts(productIds);
-
-            foreach (var wsProduct in wsProducts)
-            {
-                _products.Add(wsProduct);
-            }
+            PopulateProductsFromWesco(productIds);
         }
 
         private void PopulateProductsFromPdfFile(object arg)
@@ -171,15 +180,19 @@ namespace CSI.Scrapper.Helpers
             var fileService = new FileService(_bgWorker);
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
 
-            var ws = new WescoService(_bgWorker);
+            PopulateProductsFromWesco(productIds);
+            SaveProductsToDb(false);
+        }
+
+        private void PopulateProductsFromWesco(List<string> productIds)
+        {
+            var ws = new WescoService(_bgWorker) { ScreenShotsDirectoryPath = _screenShotDirectoryPath }; ;
             var wsProducts = ws.GetProducts(productIds);
 
             foreach (var wsProduct in wsProducts)
             {
                 _products.Add(wsProduct);
             }
-
-            SaveProductsToDb(false);
         }
     }
 }

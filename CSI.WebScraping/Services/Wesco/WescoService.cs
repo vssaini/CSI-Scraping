@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 
 namespace CSI.WebScraping.Services.Wesco
@@ -12,6 +13,8 @@ namespace CSI.WebScraping.Services.Wesco
     {
         private readonly ChromeService _chromeService;
         private readonly BackgroundWorker _bgWorker;
+
+        public string ScreenShotsDirectoryPath { get; set; }
 
         public WescoService(BackgroundWorker bgWorker)
         {
@@ -51,10 +54,11 @@ namespace CSI.WebScraping.Services.Wesco
             try
             {
                 var searchField = driver.FindElement(By.Id("search-desktop"));
+                searchField.Clear();
                 searchField.SendKeys(productId);
                 searchField.SendKeys(Keys.Enter);
 
-                SaveScreenShotIfRequested(driver);
+                SaveScreenShotIfRequested(driver, productId);
 
                 return GetProduct(driver, productId, counter);
             }
@@ -66,12 +70,22 @@ namespace CSI.WebScraping.Services.Wesco
             return product;
         }
 
-        private void SaveScreenShotIfRequested(WebDriver driver)
+        private void SaveScreenShotIfRequested(WebDriver driver, string productId)
         {
             if (!_chromeService.SaveMilestoneScreenshots) return;
 
-            var searchShot = driver.GetScreenshot();
-            searchShot.SaveAsFile("ScreenShot_Wesco_SearchResult.png");
+            try
+            {
+                _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
+
+                var filePath = Path.Combine(ScreenShotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now:yyyy-MM-dd_hhmmss}.png");
+                var searchShot = driver.GetScreenshot();
+                searchShot.SaveAsFile(filePath);
+            }
+            catch (Exception e)
+            {
+                _bgWorker.ReportProgress(0, $"Error occurred while saving the screenshot for the product '{productId}'. Error - {e.Message}");
+            }
         }
 
         private Product GetProduct(WebDriver driver, string productId, int counter)
@@ -103,17 +117,17 @@ namespace CSI.WebScraping.Services.Wesco
                 Status = Constants.StatusNotFound
             };
 
-            var productDiv = driver.FindElement(By.CssSelector(".product-info"));
-            var productExist = IsProductExist(productDiv, productId, ".product-attributes .attribute-value");
+            var productInfoDiv = driver.FindElement(By.CssSelector(".product-info"));
+            var productExist = IsProductExist(productInfoDiv, productId, ".product-attributes .attribute-value");
 
             if (productExist)
             {
                 product.Status = Constants.StatusFound;
 
-                var spans = productDiv.FindElements(By.TagName("span"));
+                var spans = productInfoDiv.FindElements(By.TagName("span"));
                 var productName = spans[1].Text;
 
-                var priceSpan = productDiv.FindElement(By.CssSelector(".product-pricing .price .js-priceDisplay"));
+                var priceSpan = productInfoDiv.FindElement(By.CssSelector(".product-pricing .price .js-priceDisplay"));
                 var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
 
                 _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
