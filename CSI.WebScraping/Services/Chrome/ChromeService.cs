@@ -79,12 +79,12 @@ namespace CSI.WebScraping.Services.Chrome
             driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
             driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
 
-            SaveLoginScreenshot(driver);
+            SaveScreenshotIfRequested(driver);
 
             driver.FindElement(By.CssSelector("button.button")).Click();
         }
 
-        private void SaveLoginScreenshot(WebDriver driver)
+        private void SaveScreenshotIfRequested(WebDriver driver)
         {
             if (!_cdConfig.SaveScreenshots) return;
 

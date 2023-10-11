@@ -9,5 +9,10 @@
         public string Price { get; set; }
 
         public string Status { get; set; }
+
+        public Product()
+        {
+            Status = Constants.StatusNotFound;
+        }
     }
 }
