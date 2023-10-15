@@ -117,6 +117,7 @@
     <Compile Include="Services\ScrapeMe\SeleniumService.cs" />
     <Compile Include="Services\ToScrape\HapService.cs" />
     <Compile Include="Services\ToScrape\SeleniumService.cs" />
+    <Compile Include="Services\Wesco\AccountService.cs" />
     <Compile Include="Services\Wesco\WescoService.cs" />
   </ItemGroup>
   <ItemGroup>

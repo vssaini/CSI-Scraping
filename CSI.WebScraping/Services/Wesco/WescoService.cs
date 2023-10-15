@@ -1,4 +1,5 @@
 ﻿using CSI.Common;
+using CSI.Common.Config;
 using CSI.Common.Wesco;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;
@@ -7,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using CSI.Common.Extensions;
 using Log = Serilog.Log;
 
 namespace CSI.WebScraping.Services.Wesco
@@ -15,19 +18,38 @@ namespace CSI.WebScraping.Services.Wesco
     {
         private readonly ChromeService _chromeService;
         private readonly BackgroundWorker _bgWorker;
+        private readonly WescoConfig _wesConfig;
 
-        public string ScreenshotsDirectoryPath { get; set; }
-
+        private string _screenshotDirectoryPath;
+        
         public WescoService(BackgroundWorker bgWorker)
         {
             _chromeService = new ChromeService(bgWorker);
             _bgWorker = bgWorker;
+            _wesConfig = WescoConfig.GetInstance();
+
+            CreateScreenshotDirectoryIfSavingIsEnabled();
+        }
+
+        private void CreateScreenshotDirectoryIfSavingIsEnabled()
+        {
+            if (!_wesConfig.SaveScreenshots) 
+                return;
+
+            Log.Logger.Information("Creating screenshots directory.");
+
+            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
+            _screenshotDirectoryPath = Path.Combine(assemblyDirectory, _wesConfig.ScreenshotDirectoryName);
+
+            if (!Directory.Exists(_screenshotDirectoryPath))
+                Directory.CreateDirectory(_screenshotDirectoryPath);
         }
 
         public IEnumerable<Product> GetProducts(List<string> productIds)
         {
             using var driver = _chromeService.GetChromeDriver();
-            _chromeService.Login(driver);
+            var accService = new AccountService(_bgWorker, driver);
+            accService.Login();
 
             var startTime = DateTime.Now;
             _bgWorker.ReportProgress(0, $"Searching of products started at {startTime:T}.");
@@ -72,13 +94,13 @@ namespace CSI.WebScraping.Services.Wesco
 
         private void SaveScreenshotIfRequested(ITakesScreenshot driver, string productId)
         {
-            if (!_chromeService.SaveScreenshots) return;
+            if (!_wesConfig.SaveScreenshots) return;
 
             try
             {
                 _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
 
-                var filePath = Path.Combine(ScreenshotsDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
+                var filePath = Path.Combine(_screenshotDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
                 var searchShot = driver.GetScreenshot();
                 searchShot.SaveAsFile(filePath);
             }

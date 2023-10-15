@@ -14,8 +14,6 @@ namespace CSI.Common.Config
     public sealed class ChromeDriverConfig
     {
         public bool HideCommandPromptWindow { get; set; }
-        public bool SaveScreenshots { get; set; }
-        public string ScreenshotDirectoryName { get; set; }
         public int ImplicitWaitSeconds { get; set; }
 
         // We now have a lock object that will be used to synchronize threads
@@ -59,15 +57,8 @@ namespace CSI.Common.Config
                     {
                         _instance = new ChromeDriverConfig
                         {
-                            HideCommandPromptWindow =
-                                Convert.ToBoolean(
-                                    ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
-                            SaveScreenshots =
-                                Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:SaveScreenshots"]),
-                            ScreenshotDirectoryName =
-                                ConfigurationManager.AppSettings["ChromeDriver:ScreenshotDirectoryName"],
-                            ImplicitWaitSeconds =
-                                Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
+                            HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
+                            ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
                         };
                     }
                 }

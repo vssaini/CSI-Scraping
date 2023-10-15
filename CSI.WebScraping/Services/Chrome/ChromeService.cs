@@ -15,8 +15,6 @@ namespace CSI.WebScraping.Services.Chrome
         private readonly BackgroundWorker _bgWorker;
         private readonly ChromeDriverConfig _cdConfig;
 
-        public bool SaveScreenshots => _cdConfig.SaveScreenshots;
-
         public ChromeService(BackgroundWorker bgWorker)
         {
             _bgWorker = bgWorker;
@@ -68,31 +66,31 @@ namespace CSI.WebScraping.Services.Chrome
             }
         }
 
-        public void Login(WebDriver driver)
-        {
-            var wesConfig = WescoConfig.GetInstance();
+        //public void Login(WebDriver driver)
+        //{
+        //    var wesConfig = WescoConfig.GetInstance();
 
-            _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
+        //    _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
 
-            driver.Navigate().GoToUrl(wesConfig.LoginUrl);
+        //    driver.Navigate().GoToUrl(wesConfig.LoginUrl);
 
-            driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
-            driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
+        //    driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
+        //    driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
 
-            SaveScreenshotIfRequested(driver);
+        //    SaveScreenshotIfRequested(driver);
 
-            driver.FindElement(By.CssSelector("button.button")).Click();
-        }
+        //    driver.FindElement(By.CssSelector("button.button")).Click();
+        //}
 
-        private void SaveScreenshotIfRequested(WebDriver driver)
-        {
-            if (!_cdConfig.SaveScreenshots) return;
+        //private void SaveScreenshotIfRequested(WebDriver driver)
+        //{
+        //    if (!_cdConfig.SaveScreenshots) return;
 
-            _bgWorker.ReportProgress(0, "Saving the screenshot for the Wesco login page.");
+        //    _bgWorker.ReportProgress(0, "Saving the screenshot for the Wesco login page.");
 
-            var filePath = Path.Combine(_cdConfig.ScreenshotDirectoryName, $"Wesco_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
-            var screenshot = driver.GetScreenshot();
-            screenshot.SaveAsFile(filePath);
-        }
+        //    var filePath = Path.Combine(_cdConfig.ScreenshotDirectoryName, $"Wesco_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
+        //    var screenshot = driver.GetScreenshot();
+        //    screenshot.SaveAsFile(filePath);
+        //}
     }
 }

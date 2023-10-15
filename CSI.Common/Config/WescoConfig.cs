@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace CSI.Common.Config
 {
@@ -7,6 +8,9 @@ namespace CSI.Common.Config
         public string LoginUrl { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+
+        public bool SaveScreenshots { get; set; }
+        public string ScreenshotDirectoryName { get; set; }
 
         private WescoConfig() { }
 
@@ -22,9 +26,11 @@ namespace CSI.Common.Config
             {
                 _instance ??= new WescoConfig
                 {
-                    LoginUrl = ConfigurationManager.AppSettings["WescoLoginUrl"],
-                    Username = ConfigurationManager.AppSettings["WescoUsername"],
-                    Password = ConfigurationManager.AppSettings["WescoPassword"]
+                    LoginUrl = ConfigurationManager.AppSettings["Wesco:LoginUrl"],
+                    Username = ConfigurationManager.AppSettings["Wesco:Username"],
+                    Password = ConfigurationManager.AppSettings["Wesco:Password"],
+                    SaveScreenshots = Convert.ToBoolean(ConfigurationManager.AppSettings["Wesco:SaveScreenshots"]),
+                    ScreenshotDirectoryName = ConfigurationManager.AppSettings["Wesco:ScreenshotDirectoryName"],
                 };
             }
 

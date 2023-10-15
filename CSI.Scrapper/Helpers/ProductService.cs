@@ -3,19 +3,15 @@ using CSI.Common.Wesco;
 using CSI.FileScraping.Services;
 using CSI.Services;
 using CSI.WebScraping.Services.Wesco;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-using CSI.Common.Config;
-using CSI.Common.Extensions;
-using Serilog;
 
 namespace CSI.Scrapper.Helpers
 {
@@ -30,7 +26,6 @@ namespace CSI.Scrapper.Helpers
         private readonly BindingSource _bindingSource;
         private int _batchId, _rowsSaved, _multiplicand = 1;
         private static int _recordsToSaveInBatch;
-        private string _screenshotDirectoryPath;
 
         public ProductService(BackgroundWorker bgWorker, DataGridView gvProducts)
         {
@@ -136,19 +131,6 @@ namespace CSI.Scrapper.Helpers
             }
         }
 
-        public void CreateScreenshotsDirectory()
-        {
-            Log.Logger.Information("Creating screenshots directory.");
-
-            var cdConfig = ChromeDriverConfig.GetInstance();
-
-            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
-            _screenshotDirectoryPath = Path.Combine(assemblyDirectory, cdConfig.ScreenshotDirectoryName);
-
-            if (!Directory.Exists(_screenshotDirectoryPath))
-                Directory.CreateDirectory(_screenshotDirectoryPath);
-        }
-
         private void PopulateProductsFromWeb(object arg)
         {
             _products.Clear();
@@ -158,6 +140,8 @@ namespace CSI.Scrapper.Helpers
                 : new List<string>();
 
             PopulateProductsFromWesco(productIds);
+
+            // TODO: Populated products from other websites
         }
 
         private void PopulateProductsFromPdfFile(object arg)
@@ -192,7 +176,7 @@ namespace CSI.Scrapper.Helpers
 
         private void PopulateProductsFromWesco(List<string> productIds)
         {
-            var ws = new WescoService(_bgWorker) { ScreenshotsDirectoryPath = _screenshotDirectoryPath };
+            var ws = new WescoService(_bgWorker);
             var wsProducts = ws.GetProducts(productIds);
 
             foreach (var wsProduct in wsProducts)
