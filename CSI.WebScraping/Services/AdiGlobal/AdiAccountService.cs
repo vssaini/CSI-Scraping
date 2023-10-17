@@ -1,26 +1,26 @@
-﻿using CSI.Common.Config;
+﻿using System;
+using System.ComponentModel;
+using CSI.Common.Config;
 using CSI.WebScraping.Extensions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-using System;
-using System.ComponentModel;
 
-namespace CSI.WebScraping.Services.ScanSource;
+namespace CSI.WebScraping.Services.AdiGlobal;
 
-internal class ScanAccountService
+internal class AdiAccountService
 {
     private readonly BackgroundWorker _bgWorker;
     private readonly WebDriver _driver;
-    private readonly ScanSourceConfig _ssConfig;
+    private readonly AdiConfig _ssConfig;
 
-    private const string WebsiteName = "Scan Source";
+    private const string WebsiteName = "ADI Global";
 
-    public ScanAccountService(BackgroundWorker bgWorker, WebDriver driver)
+    public AdiAccountService(BackgroundWorker bgWorker, WebDriver driver)
     {
         _bgWorker = bgWorker;
         _driver = driver;
-        _ssConfig = ScanSourceConfig.GetInstance();
+        _ssConfig = AdiConfig.GetInstance();
     }
 
     public void Login()

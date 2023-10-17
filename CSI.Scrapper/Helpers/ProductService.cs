@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
 using CSI.Common;
+using CSI.WebScraping.Services.AdiGlobal;
 using CSI.WebScraping.Services.ScanSource;
 
 namespace CSI.Scrapper.Helpers
@@ -173,27 +174,35 @@ namespace CSI.Scrapper.Helpers
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
 
             //PopulateProductsFromWesco(productIds);
-            PopulateProductsFromScanSource(productIds);
+            //PopulateProductsFromScanSource(productIds);
+            PopulateProductsFromAdiGlobal(productIds);
             SaveProductsToDb(false);
         }
 
         private void PopulateProductsFromWesco(List<string> productIds)
         {
             var ws = new WescoService(_bgWorker);
-            var wsProducts = ws.GetProducts(productIds);
-
-            foreach (var wsProduct in wsProducts)
-            {
-                _products.Add(wsProduct);
-            }
+            var products = ws.GetProducts(productIds);
+            ProcessProducts(products);
         }
 
         private void PopulateProductsFromScanSource(List<string> productIds)
         {
-            var ws = new ScanService(_bgWorker);
-            var wsProducts = ws.GetProducts(productIds);
+            var scanService = new ScanService(_bgWorker);
+            var products = scanService.GetProducts(productIds);
+            ProcessProducts(products);
+        }
 
-            foreach (var wsProduct in wsProducts)
+        private void PopulateProductsFromAdiGlobal(List<string> productIds)
+        {
+            var adiService = new AdiService(_bgWorker);
+            var products = adiService.GetProducts(productIds);
+            ProcessProducts(products);
+        }
+
+        private void ProcessProducts(IEnumerable<Product> products)
+        {
+            foreach (var wsProduct in products)
             {
                 _products.Add(wsProduct);
             }
