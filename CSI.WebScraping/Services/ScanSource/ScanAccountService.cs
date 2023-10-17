@@ -52,8 +52,5 @@ internal class ScanAccountService
         btnSignIn.Click();
 
         _driver.SaveScreenshot(_bgWorker, _ssConfig, "AzureLogin");
-
-        //wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-        //wait.Until(d => d.FindElement(By.Id("search")).Displayed);
     }
 }

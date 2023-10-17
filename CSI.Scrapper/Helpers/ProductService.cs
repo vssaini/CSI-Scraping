@@ -81,8 +81,6 @@ namespace CSI.Scrapper.Helpers
 
         private void SaveProductsToDb(bool saveInBatch = true)
         {
-            return;
-
             List<Product> productsToSave;
 
             if (saveInBatch)

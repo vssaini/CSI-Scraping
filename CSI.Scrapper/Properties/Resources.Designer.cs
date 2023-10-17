@@ -154,7 +154,7 @@ namespace CSI.Scrapper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please wait! Searching products from Wesco using Excel....
+        ///   Looks up a localized string similar to Please wait! Searching products from Web using Excel....
         /// </summary>
         internal static string InfoSearchProductFromExcel {
             get {
@@ -172,7 +172,7 @@ namespace CSI.Scrapper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please wait! Searching products from Wesco....
+        ///   Looks up a localized string similar to Please wait! Searching products from Web....
         /// </summary>
         internal static string InfoSearchProductFromWeb {
             get {

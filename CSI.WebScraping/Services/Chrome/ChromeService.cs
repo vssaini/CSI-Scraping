@@ -27,7 +27,7 @@ namespace CSI.WebScraping.Services.Chrome
             var options = new ChromeOptions();
 
             // Open Chrome without displaying 
-            //options.AddArgument("--headless=new");
+            options.AddArgument("--headless=new");
             //options.AddArguments("--kiosk"); // Keep Chrome in full screen. But only works without headless.
             options.AddArgument("--ignore-certificate-errors");
             options.AddArgument("--window-size=1920,1080");

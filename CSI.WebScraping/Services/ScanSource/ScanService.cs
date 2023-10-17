@@ -55,8 +55,6 @@ public class ScanService
     {
         try
         {
-            driver.SaveScreenshot(_bgWorker, _ssConfig, "BeforeProductSearch");
-
             SendSearchCommand(driver, productId);
 
             driver.SaveSearchScreenshot(_bgWorker, _ssConfig, productId);
@@ -84,21 +82,25 @@ public class ScanService
         // Now search for the product in search box shown
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
         var searchField = wait.Until(x => x.FindElement(By.Id("search")));
-        
+
         searchField.Clear();
         searchField.SendKeys(productId);
         searchField.SendKeys(Keys.Enter);
 
-        driver.SaveScreenshot(_bgWorker, _ssConfig, "AfterProductSearchCommandSent");
+        driver.SaveScreenshot(_bgWorker, _ssConfig, $"AfterProduct-{productId}-SearchCommandSent");
     }
 
     private Product LookForProductInSearchResult(WebDriver driver, string productId, int counter)
     {
         try
         {
+            var searchResultExist = SearchResultExist(driver);
+            if (!searchResultExist)
+                return CommonService.ProductNotFound(productId, counter);
+
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var productDtlDiv = wait.Until(x => x.FindElement(By.CssSelector(".search-result-list .product-detail-container")));
-            
+
             var productExist = ProductExist(productDtlDiv, productId, ".product-content-header .field-manufactureritemnumber");
 
             if (productExist)
@@ -120,6 +122,12 @@ public class ScanService
         return CommonService.ProductNotFound(productId, counter);
     }
 
+    private static bool SearchResultExist(ISearchContext driver)
+    {
+        var searchResultDiv = driver.FindElements(By.CssSelector(".search-result-list"));
+        return searchResultDiv.Any();
+    }
+
     private static bool ProductExist(ISearchContext productDiv, string productId, string cssSelectorToFind)
     {
         // NOTE - Space after each class name is mandatory
@@ -134,7 +142,7 @@ public class ScanService
 
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
-        var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .your-price deal"));
+        var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
         var productPrice = priceLbl.Text;
 
         return new Product
