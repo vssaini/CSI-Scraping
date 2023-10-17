@@ -1,8 +1,8 @@
 ﻿using CSI.Common.Extensions;
-using CSI.Common.Wesco;
 using Serilog;
 using System.IO;
 using System.Reflection;
+using CSI.Common;
 
 namespace CSI.WebScraping.Services;
 

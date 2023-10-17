@@ -1,6 +1,5 @@
 ﻿using CSI.Common;
 using CSI.Common.Config;
-using CSI.Common.Wesco;
 using CSI.WebScraping.Extensions;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;

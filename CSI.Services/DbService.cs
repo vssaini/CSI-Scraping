@@ -1,9 +1,9 @@
-﻿using CSI.Common.Wesco;
-using CSI.Data;
+﻿using CSI.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using CSI.Common;
 using Serilog;
 
 namespace CSI.Services

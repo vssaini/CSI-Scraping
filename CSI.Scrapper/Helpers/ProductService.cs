@@ -1,5 +1,4 @@
 ﻿using CSI.Common.Enums;
-using CSI.Common.Wesco;
 using CSI.FileScraping.Services;
 using CSI.Services;
 using CSI.WebScraping.Services.Wesco;
@@ -12,6 +11,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
+using CSI.Common;
 using CSI.WebScraping.Services.ScanSource;
 
 namespace CSI.Scrapper.Helpers

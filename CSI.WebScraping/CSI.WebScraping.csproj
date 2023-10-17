@@ -109,18 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DriverExtensions.cs" />
-    <Compile Include="Models\ToScrape\Book.cs" />
-    <Compile Include="Models\ToScrape\Quote.cs" />
-    <Compile Include="Models\ScrapeMe\PokemonProduct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Chrome\ChromeService.cs" />
     <Compile Include="Services\CommonService.cs" />
     <Compile Include="Services\ScanSource\ScanAccountService.cs" />
     <Compile Include="Services\ScanSource\ScanService.cs" />
-    <Compile Include="Services\ScrapeMe\HapService.cs" />
-    <Compile Include="Services\ScrapeMe\SeleniumService.cs" />
-    <Compile Include="Services\ToScrape\HapService.cs" />
-    <Compile Include="Services\ToScrape\SeleniumService.cs" />
     <Compile Include="Services\Wesco\WescoAccountService.cs" />
     <Compile Include="Services\Wesco\WescoService.cs" />
   </ItemGroup>

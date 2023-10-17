@@ -1,4 +1,4 @@
-﻿namespace CSI.Common.Wesco
+﻿namespace CSI.Common
 {
     public class Product
     {
