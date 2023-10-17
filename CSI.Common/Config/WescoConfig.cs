@@ -3,14 +3,9 @@ using System.Configuration;
 
 namespace CSI.Common.Config
 {
-    public sealed class WescoConfig
+    public sealed class WescoConfig : BaseConfig
     {
         public string LoginUrl { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-
-        public bool SaveScreenshots { get; set; }
-        public string ScreenshotDirectoryName { get; set; }
 
         private WescoConfig() { }
 

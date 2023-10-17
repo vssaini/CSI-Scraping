@@ -24,24 +24,25 @@ namespace CSI.WebScraping.Services.Chrome
 
             CloseGhostsChromeDriver();
 
-            var chromeOptions = new ChromeOptions();
+            var options = new ChromeOptions();
 
             // Open Chrome without displaying 
-            chromeOptions.AddArgument("headless");
-            chromeOptions.AddArguments("--kiosk"); // Keep chrome in full screen
-            chromeOptions.AddArgument("ignore-certificate-errors");
+            //options.AddArgument("--headless=new");
+            //options.AddArguments("--kiosk"); // Keep Chrome in full screen. But only works without headless.
+            options.AddArgument("--ignore-certificate-errors");
+            options.AddArgument("--window-size=1920,1080");
 
             // Disable writing of unnecessary logs
             // Valid levels are INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3
-            chromeOptions.AddArgument("log-level=3");
+            options.AddArgument("log-level=3");
 
             const string userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36";
-            chromeOptions.AddArgument($"user-agent={userAgent}");
+            options.AddArgument($"user-agent={userAgent}");
 
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = _cdConfig.HideCommandPromptWindow;
 
-            var driver = new ChromeDriver(chromeDriverService, chromeOptions);
+            var driver = new ChromeDriver(chromeDriverService, options);
 
             // Implicitly wait for action or search
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(_cdConfig.ImplicitWaitSeconds);

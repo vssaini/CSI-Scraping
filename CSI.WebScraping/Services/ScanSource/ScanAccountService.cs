@@ -1,11 +1,10 @@
-﻿using CSI.Common;
-using CSI.Common.Config;
+﻿using CSI.Common.Config;
+using CSI.WebScraping.Extensions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.ComponentModel;
-using System.IO;
 
 namespace CSI.WebScraping.Services.ScanSource;
 
@@ -31,30 +30,30 @@ internal class ScanAccountService
         _bgWorker.ReportProgress(0, $"Navigating to URL {_ssConfig.HomeUrl}");
         _driver.Navigate().GoToUrl(_ssConfig.HomeUrl);
 
-        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-        var signInLink = wait.Until(x => x.FindElement(By.Id("accountMenu")));
+        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
+        var signInLink = wait.Until(d => d.FindElement(By.Id("accountMenu")));
 
         var action = new Actions(_driver);
         action.MoveToElement(signInLink).Click().Build().Perform();
 
-        IWebElement txtEmail = wait.Until(x => x.FindElement(By.Id("email")));
+        _driver.SaveScreenshot(_bgWorker, _ssConfig, "HomePage");
+
+        IWebElement txtEmail = wait.Until(d => d.FindElement(By.Id("email")));
         txtEmail.SendKeys(_ssConfig.Username);
 
-        _driver.FindElement(By.Id("password")).SendKeys(_ssConfig.Password);
-        _driver.FindElement(By.Id("next")).Click();
+        IWebElement txtPassword = wait.Until(d => d.FindElement(By.Id("password")));
+        txtPassword.SendKeys(_ssConfig.Password);
 
-        SaveScreenshotIfRequested();
-    }
+        // Search by enter
+        //txtPassword.SendKeys(Keys.Enter);
 
-    private void SaveScreenshotIfRequested()
-    {
-        if (!_ssConfig.SaveScreenshots)
-            return;
+        wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+        IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
+        btnSignIn.Click();
 
-        _bgWorker.ReportProgress(0, $"Saving the screenshot for the {WebsiteName} for Login step.");
+        _driver.SaveScreenshot(_bgWorker, _ssConfig, "AzureLogin");
 
-        var filePath = Path.Combine(_ssConfig.ScreenshotDirectoryName, $"{WebsiteName}_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
-        var screenshot = _driver.GetScreenshot();
-        screenshot.SaveAsFile(filePath);
+        //wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+        //wait.Until(d => d.FindElement(By.Id("search")).Displayed);
     }
 }

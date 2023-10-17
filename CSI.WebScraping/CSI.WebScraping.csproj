@@ -108,6 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\DriverExtensions.cs" />
     <Compile Include="Models\ToScrape\Book.cs" />
     <Compile Include="Models\ToScrape\Quote.cs" />
     <Compile Include="Models\ScrapeMe\PokemonProduct.cs" />

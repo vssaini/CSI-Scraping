@@ -12,13 +12,18 @@ public static class CommonService
     {
         Log.Logger.Information("Creating directory.");
 
-        var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
-        var directoryPath = Path.Combine(assemblyDirectory, directoryName);
+        var directoryPath = GetDirectoryPath(directoryName);
 
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 
         return directoryPath;
+    }
+
+    public static string GetDirectoryPath(string directoryName)
+    {
+        var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
+        return Path.Combine(assemblyDirectory, directoryName);
     }
 
     public static Product ProductNotFound(string productId, int counter)

@@ -81,7 +81,7 @@ namespace CSI.Scrapper.Helpers
 
         private void SaveProductsToDb(bool saveInBatch = true)
         {
-            //return;
+            return;
 
             List<Product> productsToSave;
 
@@ -169,7 +169,7 @@ namespace CSI.Scrapper.Helpers
 
             var excelFilePath = arg as string ?? string.Empty;
 
-            _bgWorker.ReportProgress(0, $"Retrieving product Ids from excel file.");
+            _bgWorker.ReportProgress(0, "Retrieving product Ids from excel file.");
 
             var fileService = new FileService(_bgWorker);
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);

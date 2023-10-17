@@ -1,12 +1,12 @@
 ﻿using CSI.Common;
 using CSI.Common.Config;
 using CSI.Common.Wesco;
+using CSI.WebScraping.Extensions;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using Log = Serilog.Log;
 
@@ -18,8 +18,6 @@ namespace CSI.WebScraping.Services.Wesco
         private readonly BackgroundWorker _bgWorker;
         private readonly WescoConfig _wesConfig;
 
-        private readonly string _screenshotDirectoryPath;
-
         public WescoService(BackgroundWorker bgWorker)
         {
             _chromeService = new ChromeService(bgWorker);
@@ -27,7 +25,7 @@ namespace CSI.WebScraping.Services.Wesco
             _wesConfig = WescoConfig.GetInstance();
 
             if (_wesConfig.SaveScreenshots)
-                _screenshotDirectoryPath = CommonService.CreateDirectory(_wesConfig.ScreenshotDirectoryName);
+                CommonService.CreateDirectory(_wesConfig.ScreenshotDirectoryName);
         }
 
         public IEnumerable<Product> GetProducts(List<string> productIds)
@@ -56,7 +54,7 @@ namespace CSI.WebScraping.Services.Wesco
             try
             {
                 SendSearchCommand(driver, productId);
-                SaveScreenshotIfRequested(driver, productId);
+                driver.SaveSearchScreenshot(_bgWorker, _wesConfig, productId);
 
                 return LookForProductInSearchResult(driver, productId, counter);
             }
@@ -75,25 +73,6 @@ namespace CSI.WebScraping.Services.Wesco
             searchField.Clear();
             searchField.SendKeys(productId);
             searchField.SendKeys(Keys.Enter);
-        }
-
-        private void SaveScreenshotIfRequested(ITakesScreenshot driver, string productId)
-        {
-            if (!_wesConfig.SaveScreenshots) return;
-
-            try
-            {
-                _bgWorker.ReportProgress(0, $"Saving the screenshot for the product '{productId}'.");
-
-                var filePath = Path.Combine(_screenshotDirectoryPath, $"Wesco_{productId}_search_result_{DateTime.Now.ToString(Constants.DateFormat)}.png");
-                var searchShot = driver.GetScreenshot();
-                searchShot.SaveAsFile(filePath);
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Error(e, "An error occurred while saving the screenshot for the product '{ProductId}'.", productId);
-                _bgWorker.ReportProgress(0, $"Error occurred while saving the screenshot for the product '{productId}'. Error - {e.Message}");
-            }
         }
 
         private Product LookForProductInSearchResult(ISearchContext driver, string productId, int counter)

@@ -1,9 +1,7 @@
-﻿using CSI.Common;
-using CSI.Common.Config;
+﻿using CSI.Common.Config;
+using CSI.WebScraping.Extensions;
 using OpenQA.Selenium;
-using System;
 using System.ComponentModel;
-using System.IO;
 
 namespace CSI.WebScraping.Services.Wesco;
 
@@ -33,20 +31,8 @@ internal class WescoAccountService
 
         // TODO: Implement Polly retry for 3 times and then throw exception
 
-        SaveScreenshotIfRequested();
+        _driver.SaveScreenshot(_bgWorker, _wesConfig, "Login");
 
         _driver.FindElement(By.CssSelector("button.button")).Click();
-    }
-
-    private void SaveScreenshotIfRequested()
-    {
-        if (!_wesConfig.SaveScreenshots) 
-            return;
-
-        _bgWorker.ReportProgress(0, $"Saving the screenshot for the {WebsiteName} login page.");
-
-        var filePath = Path.Combine(_wesConfig.ScreenshotDirectoryName, $"{WebsiteName}_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
-        var screenshot = _driver.GetScreenshot();
-        screenshot.SaveAsFile(filePath);
     }
 }

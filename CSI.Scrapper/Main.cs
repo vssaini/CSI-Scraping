@@ -20,10 +20,10 @@ namespace CSI.Scrapper
 
         private void Main_Load(object sender, EventArgs e)
         {
-//#if DEBUG
-//            txtExcelFilePath.Text = @"E:\repos\Everconnect DS\Doc & Notes\CSI SCRAPPER\CSI Files\CSI Product Catalog 10 Records Only.xlsx";
-//            btnSearchExcelProduct.Enabled = true;
-//#endif
+#if DEBUG
+            txtExcelFilePath.Text = @"E:\repos\Everconnect DS\Doc & Notes\CSI SCRAPPER\CSI Files\CSI Product Catalog 10 Records Only.xlsx";
+            btnSearchExcelProduct.Enabled = true;
+#endif
 
             _prodService = new ProductService(bgWorker, gvProducts) { MainAssemblyLocation = Assembly.GetExecutingAssembly().Location };
         }
