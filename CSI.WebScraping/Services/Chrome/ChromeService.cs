@@ -1,11 +1,8 @@
-﻿using CSI.Common;
-using CSI.Common.Config;
-using OpenQA.Selenium;
+﻿using CSI.Common.Config;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace CSI.WebScraping.Services.Chrome
@@ -31,6 +28,7 @@ namespace CSI.WebScraping.Services.Chrome
 
             // Open Chrome without displaying 
             chromeOptions.AddArgument("headless");
+            chromeOptions.AddArguments("--kiosk"); // Keep chrome in full screen
             chromeOptions.AddArgument("ignore-certificate-errors");
 
             // Disable writing of unnecessary logs
@@ -65,32 +63,5 @@ namespace CSI.WebScraping.Services.Chrome
                 worker.Dispose();
             }
         }
-
-        //public void Login(WebDriver driver)
-        //{
-        //    var wesConfig = WescoConfig.GetInstance();
-
-        //    _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{wesConfig.LoginUrl}' with username '{wesConfig.Username}' and password '{wesConfig.Password}'");
-
-        //    driver.Navigate().GoToUrl(wesConfig.LoginUrl);
-
-        //    driver.FindElement(By.Id("j_username")).SendKeys(wesConfig.Username);
-        //    driver.FindElement(By.Id("j_password")).SendKeys(wesConfig.Password);
-
-        //    SaveScreenshotIfRequested(driver);
-
-        //    driver.FindElement(By.CssSelector("button.button")).Click();
-        //}
-
-        //private void SaveScreenshotIfRequested(WebDriver driver)
-        //{
-        //    if (!_cdConfig.SaveScreenshots) return;
-
-        //    _bgWorker.ReportProgress(0, "Saving the screenshot for the Wesco login page.");
-
-        //    var filePath = Path.Combine(_cdConfig.ScreenshotDirectoryName, $"Wesco_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
-        //    var screenshot = driver.GetScreenshot();
-        //    screenshot.SaveAsFile(filePath);
-        //}
     }
 }

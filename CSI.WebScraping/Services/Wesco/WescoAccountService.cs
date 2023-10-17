@@ -7,13 +7,15 @@ using System.IO;
 
 namespace CSI.WebScraping.Services.Wesco;
 
-internal class AccountService
+internal class WescoAccountService
 {
     private readonly BackgroundWorker _bgWorker;
     private readonly WebDriver _driver;
     private readonly WescoConfig _wesConfig;
 
-    public AccountService(BackgroundWorker bgWorker, WebDriver driver)
+    private const string WebsiteName = "Wesco";
+
+    public WescoAccountService(BackgroundWorker bgWorker, WebDriver driver)
     {
         _bgWorker = bgWorker;
         _driver = driver;
@@ -22,7 +24,7 @@ internal class AccountService
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on Wesco using URL '{_wesConfig.LoginUrl}' with username '{_wesConfig.Username}' and password '{_wesConfig.Password}'");
+        _bgWorker.ReportProgress(0, $"Signing on {WebsiteName} using URL '{_wesConfig.LoginUrl}' with username '{_wesConfig.Username}' and password '{_wesConfig.Password}'");
 
         _driver.Navigate().GoToUrl(_wesConfig.LoginUrl);
 
@@ -41,9 +43,9 @@ internal class AccountService
         if (!_wesConfig.SaveScreenshots) 
             return;
 
-        _bgWorker.ReportProgress(0, "Saving the screenshot for the Wesco login page.");
+        _bgWorker.ReportProgress(0, $"Saving the screenshot for the {WebsiteName} login page.");
 
-        var filePath = Path.Combine(_wesConfig.ScreenshotDirectoryName, $"Wesco_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
+        var filePath = Path.Combine(_wesConfig.ScreenshotDirectoryName, $"{WebsiteName}_Login_{DateTime.Now.ToString(Constants.DateFormat)}.png");
         var screenshot = _driver.GetScreenshot();
         screenshot.SaveAsFile(filePath);
     }

@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using CSI.Common.Extensions;
 using Log = Serilog.Log;
 
 namespace CSI.WebScraping.Services.Wesco
@@ -20,35 +18,22 @@ namespace CSI.WebScraping.Services.Wesco
         private readonly BackgroundWorker _bgWorker;
         private readonly WescoConfig _wesConfig;
 
-        private string _screenshotDirectoryPath;
-        
+        private readonly string _screenshotDirectoryPath;
+
         public WescoService(BackgroundWorker bgWorker)
         {
             _chromeService = new ChromeService(bgWorker);
             _bgWorker = bgWorker;
             _wesConfig = WescoConfig.GetInstance();
 
-            CreateScreenshotDirectoryIfSavingIsEnabled();
-        }
-
-        private void CreateScreenshotDirectoryIfSavingIsEnabled()
-        {
-            if (!_wesConfig.SaveScreenshots) 
-                return;
-
-            Log.Logger.Information("Creating screenshots directory.");
-
-            var assemblyDirectory = Assembly.GetExecutingAssembly().DirectoryPath();
-            _screenshotDirectoryPath = Path.Combine(assemblyDirectory, _wesConfig.ScreenshotDirectoryName);
-
-            if (!Directory.Exists(_screenshotDirectoryPath))
-                Directory.CreateDirectory(_screenshotDirectoryPath);
+            if (_wesConfig.SaveScreenshots)
+                _screenshotDirectoryPath = CommonService.CreateDirectory(_wesConfig.ScreenshotDirectoryName);
         }
 
         public IEnumerable<Product> GetProducts(List<string> productIds)
         {
             using var driver = _chromeService.GetChromeDriver();
-            var accService = new AccountService(_bgWorker, driver);
+            var accService = new WescoAccountService(_bgWorker, driver);
             accService.Login();
 
             var startTime = DateTime.Now;
@@ -81,7 +66,7 @@ namespace CSI.WebScraping.Services.Wesco
                 _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
             }
 
-            return ProductNotFound(productId, counter);
+            return CommonService.ProductNotFound(productId, counter);
         }
 
         private static void SendSearchCommand(ISearchContext driver, string productId)
@@ -120,7 +105,7 @@ namespace CSI.WebScraping.Services.Wesco
                     ? GetPaginatedProduct(driver, productId, counter)
                     : GetSingleProduct(driver, productId, counter);
 
-                return product ?? ProductNotFound(productId, counter);
+                return product ?? CommonService.ProductNotFound(productId, counter);
             }
             catch (NoSuchElementException e)
             {
@@ -133,22 +118,13 @@ namespace CSI.WebScraping.Services.Wesco
                 _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
             }
 
-            return ProductNotFound(productId, counter);
+            return CommonService.ProductNotFound(productId, counter);
         }
 
         private static bool PaginatedDivExist(ISearchContext driver)
         {
             var searchResultDiv = driver.FindElements(By.CssSelector(".section-specific-results"));
             return searchResultDiv.Any();
-        }
-
-        private static Product ProductNotFound(string productId, int counter)
-        {
-            return new Product
-            {
-                Id = counter + 1,
-                ProductId = productId
-            };
         }
 
         #region Paginated product

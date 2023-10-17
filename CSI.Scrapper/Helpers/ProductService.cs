@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
+using CSI.WebScraping.Services.ScanSource;
 
 namespace CSI.Scrapper.Helpers
 {
@@ -80,6 +81,8 @@ namespace CSI.Scrapper.Helpers
 
         private void SaveProductsToDb(bool saveInBatch = true)
         {
+            //return;
+
             List<Product> productsToSave;
 
             if (saveInBatch)
@@ -113,6 +116,8 @@ namespace CSI.Scrapper.Helpers
 
         public void PopulateProducts(SearchAction searchAction, object arg)
         {
+            // TODO: Brainstorm if we should start scraping on all three via three threads
+
             Log.Logger.Information("Fetching products via search action {SearchAction}", searchAction);
 
             switch (searchAction)
@@ -139,9 +144,8 @@ namespace CSI.Scrapper.Helpers
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
 
-            PopulateProductsFromWesco(productIds);
-
-            // TODO: Populated products from other websites
+            //PopulateProductsFromWesco(productIds);
+            PopulateProductsFromScanSource(productIds);
         }
 
         private void PopulateProductsFromPdfFile(object arg)
@@ -170,13 +174,25 @@ namespace CSI.Scrapper.Helpers
             var fileService = new FileService(_bgWorker);
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
 
-            PopulateProductsFromWesco(productIds);
+            //PopulateProductsFromWesco(productIds);
+            PopulateProductsFromScanSource(productIds);
             SaveProductsToDb(false);
         }
 
         private void PopulateProductsFromWesco(List<string> productIds)
         {
             var ws = new WescoService(_bgWorker);
+            var wsProducts = ws.GetProducts(productIds);
+
+            foreach (var wsProduct in wsProducts)
+            {
+                _products.Add(wsProduct);
+            }
+        }
+
+        private void PopulateProductsFromScanSource(List<string> productIds)
+        {
+            var ws = new ScanService(_bgWorker);
             var wsProducts = ws.GetProducts(productIds);
 
             foreach (var wsProduct in wsProducts)
