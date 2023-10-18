@@ -15,6 +15,7 @@ namespace CSI.Common.Config
     {
         public bool HideCommandPromptWindow { get; set; }
         public int ImplicitWaitSeconds { get; set; }
+        public string BrowserlessApiKey { get; set; }
 
         // We now have a lock object that will be used to synchronize threads
         // during first access to the Singleton.
@@ -58,7 +59,8 @@ namespace CSI.Common.Config
                         _instance = new ChromeDriverConfig
                         {
                             HideCommandPromptWindow = Convert.ToBoolean(ConfigurationManager.AppSettings["ChromeDriver:HideCommandPromptWindow"]),
-                            ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"])
+                            ImplicitWaitSeconds = Convert.ToInt32(ConfigurationManager.AppSettings["ChromeDriver:ImplicitWaitSeconds"]),
+                            BrowserlessApiKey = ConfigurationManager.AppSettings["ChromeDriver:BrowserlessApiKey"]
                         };
                     }
                 }

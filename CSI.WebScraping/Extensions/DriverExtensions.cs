@@ -31,12 +31,12 @@ public static class DriverExtensions
 
     private static string GetWebsiteName(BaseConfig config)
     {
-        var websiteName = "Wesco";
-
-        if (config is ScanSourceConfig)
-            websiteName = "ScanSource";
-
-        return websiteName;
+        return config switch
+        {
+            ScanSourceConfig => Constants.Website.ScanSource,
+            AdiConfig => Constants.Website.AdiGlobal,
+            _ => Constants.Website.Wesco
+        };
     }
 
 
@@ -64,5 +64,19 @@ public static class DriverExtensions
             Log.Logger.Error(e, "An error occurred while saving the screenshot for the product '{ProductId}'.", productId);
             bgWorker.ReportProgress(0, $"Error occurred while saving the screenshot for the product '{productId}'. Error - {e.Message}");
         }
+    }
+
+    public static void SaveBsScreenshot(this IWebDriver driver, BackgroundWorker bgWorker, BaseConfig config,
+        string feature)
+    {
+        var ssDriver = driver as ITakesScreenshot;
+        if (ssDriver is null) return;
+
+        ssDriver.SaveScreenshot(bgWorker, config, feature);
+    }
+
+    public static IJavaScriptExecutor Script(this IWebDriver driver)
+    {
+        return (IJavaScriptExecutor)driver;
     }
 }

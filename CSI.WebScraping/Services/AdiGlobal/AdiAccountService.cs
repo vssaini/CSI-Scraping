@@ -1,10 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using CSI.Common;
 using CSI.Common.Config;
 using CSI.WebScraping.Extensions;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using System;
+using System.ComponentModel;
+using OpenQA.Selenium.Interactions;
 
 namespace CSI.WebScraping.Services.AdiGlobal;
 
@@ -12,45 +13,45 @@ internal class AdiAccountService
 {
     private readonly BackgroundWorker _bgWorker;
     private readonly WebDriver _driver;
-    private readonly AdiConfig _ssConfig;
-
-    private const string WebsiteName = "ADI Global";
+    private readonly AdiConfig _adiConfig;
 
     public AdiAccountService(BackgroundWorker bgWorker, WebDriver driver)
     {
         _bgWorker = bgWorker;
         _driver = driver;
-        _ssConfig = AdiConfig.GetInstance();
+        _adiConfig = AdiConfig.GetInstance();
     }
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on {WebsiteName} using URL '{_ssConfig.HomeUrl}' with username '{_ssConfig.Username}' and password '{_ssConfig.Password}'");
+        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.AdiGlobal} using URL '{_adiConfig.HomeUrl}' with username '{_adiConfig.Username}' and password '{_adiConfig.Password}'");
 
-        _bgWorker.ReportProgress(0, $"Navigating to URL {_ssConfig.HomeUrl}");
-        _driver.Navigate().GoToUrl(_ssConfig.HomeUrl);
+        _bgWorker.ReportProgress(0, $"Navigating to URL {_adiConfig.HomeUrl}");
+        _driver.Navigate().GoToUrl(_adiConfig.HomeUrl);
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
-        var signInLink = wait.Until(d => d.FindElement(By.Id("accountMenu")));
+        var signInLink = wait.Until(d => d.FindElement(By.CssSelector(".account-menu .login-menu")));
 
         var action = new Actions(_driver);
         action.MoveToElement(signInLink).Click().Build().Perform();
 
-        _driver.SaveScreenshot(_bgWorker, _ssConfig, "HomePage");
+        _driver.SaveBsScreenshot(_bgWorker, _adiConfig, "SignInLinkClicked");
 
-        IWebElement txtEmail = wait.Until(d => d.FindElement(By.Id("email")));
-        txtEmail.SendKeys(_ssConfig.Username);
+        // Set active class so that account-menu-dropdown-login show up
+        //_driver.Script().ExecuteScript("document.getElementById('myaccountdropdownunauthenticated').setAttribute('class', 'active')");
 
-        IWebElement txtPassword = wait.Until(d => d.FindElement(By.Id("password")));
-        txtPassword.SendKeys(_ssConfig.Password);
+        IWebElement txtUsername = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_usernameunder")));
+        txtUsername.SendKeys(_adiConfig.Username);
 
-        // Search by enter
-        //txtPassword.SendKeys(Keys.Enter);
+        IWebElement txtPassword = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_passwordunder")));
+        txtPassword.SendKeys(_adiConfig.Password);
 
         wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-        IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
+        IWebElement btnSignIn = wait.Until(x => x.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-btn")));
         btnSignIn.Click();
 
-        _driver.SaveScreenshot(_bgWorker, _ssConfig, "AzureLogin");
+        //_driver.SaveBsScreenshot(_bgWorker, _adiConfig, "SignInModal");
+
+        //_bgWorker.ReportProgress(0, $"Signed on {Constants.Website.AdiGlobal} successfully!");
     }
 }

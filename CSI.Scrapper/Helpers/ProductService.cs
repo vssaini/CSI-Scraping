@@ -144,7 +144,8 @@ namespace CSI.Scrapper.Helpers
                 : new List<string>();
 
             //PopulateProductsFromWesco(productIds);
-            PopulateProductsFromScanSource(productIds);
+            //PopulateProductsFromScanSource(productIds);
+            PopulateProductsFromAdiGlobal(productIds);
         }
 
         private void PopulateProductsFromPdfFile(object arg)

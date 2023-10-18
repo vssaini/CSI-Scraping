@@ -3,7 +3,6 @@ using CSI.Common.Config;
 using CSI.WebScraping.Extensions;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog;
 using System;
@@ -72,15 +71,15 @@ public class AdiService
     private void SendSearchCommand(WebDriver driver, string productId)
     {
         // Find search link and click it
-        var nav = driver.FindElement(By.CssSelector(".site-header__navigation .utility-navigation .utility-navigation__wrap"));
-        var liItems = nav.FindElements(By.TagName("li"));
-        var listItem = liItems.FirstOrDefault(x => x.Text.Trim().Contains("Search"));
-        var action = new Actions(driver);
-        action.MoveToElement(listItem).Click().Build().Perform();
+        //var nav = driver.FindElement(By.CssSelector(".bottom-nav .rd-nav-header .bottom-nav-productMenu .search-section .search-wrapper .search-input"));
+        //var liItems = nav.FindElements(By.TagName("li"));
+        //var listItem = liItems.FirstOrDefault(x => x.Text.Trim().Contains("Search"));
+        //var action = new Actions(driver);
+        //action.MoveToElement(listItem).Click().Build().Perform();
 
         // Now search for the product in search box shown
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
-        var searchField = wait.Until(x => x.FindElement(By.Id("search")));
+        var searchField = wait.Until(x => x.FindElement(By.CssSelector(".bottom-nav .rd-nav-header .bottom-nav-productMenu .search-section .search-wrapper .search-input")));
 
         searchField.Clear();
         searchField.SendKeys(productId);
@@ -91,6 +90,8 @@ public class AdiService
 
     private Product LookForProductInSearchResult(WebDriver driver, string productId, int counter)
     {
+        return CommonService.ProductNotFound(productId, counter);
+
         try
         {
             var searchResultExist = SearchResultExist(driver);
