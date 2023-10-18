@@ -31,6 +31,7 @@ public class AdiService
     public IEnumerable<Product> GetProducts(List<string> productIds)
     {
         using var driver = _chromeService.GetChromeDriver();
+
         var accService = new AdiAccountService(_bgWorker, driver);
         accService.Login();
 
@@ -79,7 +80,10 @@ public class AdiService
 
         // Now search for the product in search box shown
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
-        var searchField = wait.Until(x => x.FindElement(By.CssSelector(".bottom-nav .rd-nav-header .bottom-nav-productMenu .search-section .search-wrapper .search-input")));
+        var searchFieldSpan = wait.Until(x => x.FindElement(By.CssSelector(".search-section .search-wrapper .search-input")));
+        var searchField = searchFieldSpan.FindElement(By.Id("widesearchbox"));
+
+        driver.SaveScreenshot(_bgWorker, _adiConfig, $"BeforeProduct-{productId}-SearchCommandSent");
 
         searchField.Clear();
         searchField.SendKeys(productId);
@@ -90,7 +94,7 @@ public class AdiService
 
     private Product LookForProductInSearchResult(WebDriver driver, string productId, int counter)
     {
-        return CommonService.ProductNotFound(productId, counter);
+        //return CommonService.ProductNotFound(productId, counter);
 
         try
         {
@@ -99,12 +103,12 @@ public class AdiService
                 return CommonService.ProductNotFound(productId, counter);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
-            var productDtlDiv = wait.Until(x => x.FindElement(By.CssSelector(".search-result-list .product-detail-container")));
+            var productContainer = wait.Until(x => x.FindElement(By.CssSelector(".rd-productlistgrid .rd-item-list .isc-productContainer")));
 
-            var productExist = ProductExist(productDtlDiv, productId, ".product-content-header .field-manufactureritemnumber");
+            var productExist = ProductExist(productContainer, productId, ".rd-itemcode-sku .item-num-sku");
 
             if (productExist)
-                return GetProductFromDetailDiv(productDtlDiv, productId, counter);
+                return GetProductFromContainer(productContainer, productId, counter);
 
             _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
         }
@@ -124,7 +128,7 @@ public class AdiService
 
     private static bool SearchResultExist(ISearchContext driver)
     {
-        var searchResultDiv = driver.FindElements(By.CssSelector(".search-result-list"));
+        var searchResultDiv = driver.FindElements(By.CssSelector(".rd-productlistgrid"));
         return searchResultDiv.Any();
     }
 
@@ -135,15 +139,15 @@ public class AdiService
         return productManufacturerNumbers.Any(p => p.Text.Trim().Contains(productId));
     }
 
-    private Product GetProductFromDetailDiv(ISearchContext productDtlDiv, string productId, int counter)
+    private Product GetProductFromContainer(ISearchContext productContainer, string productId, int counter)
     {
-        var prodDtlDiv = productDtlDiv.FindElement(By.CssSelector(".product-content-header .product-detail-name"));
-        var productName = prodDtlDiv.Text;
+        var prodSpan = productContainer.FindElement(By.CssSelector(".rd-item-name .rd-item-name-desc"));
+        var productName = prodSpan.Text;
 
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
-        var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
-        var productPrice = priceLbl.Text;
+        //var priceLbl = productContainer.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
+        var productPrice = "NA"; //priceLbl.Text;
 
         return new Product
         {

@@ -30,25 +30,25 @@ internal class AdiAccountService
         _driver.Navigate().GoToUrl(_adiConfig.HomeUrl);
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
-        var signInLink = wait.Until(d => d.FindElement(By.CssSelector(".account-menu .login-menu")));
+        //var signInLink = wait.Until(d => d.FindElement(By.CssSelector(".account-menu .login-menu")));
 
-        var action = new Actions(_driver);
-        action.MoveToElement(signInLink).Click().Build().Perform();
+        //var action = new Actions(_driver);
+        //action.MoveToElement(signInLink).Click().Build().Perform();
 
-        _driver.SaveBsScreenshot(_bgWorker, _adiConfig, "SignInLinkClicked");
+        //_driver.SaveBsScreenshot(_bgWorker, _adiConfig, "SignInLinkClicked");
 
-        // Set active class so that account-menu-dropdown-login show up
-        //_driver.Script().ExecuteScript("document.getElementById('myaccountdropdownunauthenticated').setAttribute('class', 'active')");
+        //// Set active class so that account-menu-dropdown-login show up
+        ////_driver.Script().ExecuteScript("document.getElementById('myaccountdropdownunauthenticated').setAttribute('class', 'active')");
 
-        IWebElement txtUsername = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_usernameunder")));
-        txtUsername.SendKeys(_adiConfig.Username);
+        //IWebElement txtUsername = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_usernameunder")));
+        //txtUsername.SendKeys(_adiConfig.Username);
 
-        IWebElement txtPassword = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_passwordunder")));
-        txtPassword.SendKeys(_adiConfig.Password);
+        //IWebElement txtPassword = wait.Until(d => d.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-field .UINX_passwordunder")));
+        //txtPassword.SendKeys(_adiConfig.Password);
 
-        wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
-        IWebElement btnSignIn = wait.Until(x => x.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-btn")));
-        btnSignIn.Click();
+        //wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+        //IWebElement btnSignIn = wait.Until(x => x.FindElement(By.CssSelector(".account-menu-dropdown-login .sign-in-modal .sign-in-btn")));
+        //btnSignIn.Click();
 
         //_driver.SaveBsScreenshot(_bgWorker, _adiConfig, "SignInModal");
 

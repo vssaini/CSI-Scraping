@@ -43,7 +43,7 @@ namespace CSI.WebScraping.Services.Chrome
             options.AddArgument("--hide-scrollbars");
             options.AddArgument("--metrics-recording-only");
             options.AddArgument("--mute-audio");
-            options.AddArgument("--headless");
+            //options.AddArgument("--headless");
             options.AddArgument("--no-sandbox");
             
             //options.AddArgument("--headless=new"); // Open Chrome without displaying 
