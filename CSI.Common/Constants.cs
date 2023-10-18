@@ -12,6 +12,7 @@
             public const string AdiGlobal = "ADI Global";
             public const string Wesco = "Wesco";
             public const string ScanSource = "Scan Source";
+            public const string BHPhotoVideo = "B&H Photo Video";
         }
     }
 }

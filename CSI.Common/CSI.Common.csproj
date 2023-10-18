@@ -42,6 +42,7 @@
     <Compile Include="Config\ChromeDriverConfig.cs" />
     <Compile Include="Config\BaseConfig.cs" />
     <Compile Include="Config\AdiConfig.cs" />
+    <Compile Include="Config\BHConfig.cs" />
     <Compile Include="Config\ScanSourceConfig.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Extensions\AssemblyExtensions.cs" />

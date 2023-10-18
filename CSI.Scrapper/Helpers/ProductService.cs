@@ -13,6 +13,7 @@ using System.Linq;
 using System.Windows.Forms;
 using CSI.Common;
 using CSI.WebScraping.Services.AdiGlobal;
+using CSI.WebScraping.Services.BHPhotoVideo;
 using CSI.WebScraping.Services.ScanSource;
 
 namespace CSI.Scrapper.Helpers
@@ -145,7 +146,8 @@ namespace CSI.Scrapper.Helpers
 
             //PopulateProductsFromWesco(productIds);
             //PopulateProductsFromScanSource(productIds);
-            PopulateProductsFromAdiGlobal(productIds);
+            //PopulateProductsFromAdiGlobal(productIds);
+            PopulateProductsFromBHPhotoVideo(productIds);
         }
 
         private void PopulateProductsFromPdfFile(object arg)
@@ -176,7 +178,8 @@ namespace CSI.Scrapper.Helpers
 
             //PopulateProductsFromWesco(productIds);
             //PopulateProductsFromScanSource(productIds);
-            PopulateProductsFromAdiGlobal(productIds);
+            //PopulateProductsFromAdiGlobal(productIds);
+            PopulateProductsFromBHPhotoVideo(productIds);
             SaveProductsToDb(false);
         }
 
@@ -198,6 +201,13 @@ namespace CSI.Scrapper.Helpers
         {
             var adiService = new AdiService(_bgWorker);
             var products = adiService.GetProducts(productIds);
+            ProcessProducts(products);
+        }
+
+        private void PopulateProductsFromBHPhotoVideo(List<string> productIds)
+        {
+            var bhService = new BHService(_bgWorker);
+            var products = bhService.GetProducts(productIds);
             ProcessProducts(products);
         }
 

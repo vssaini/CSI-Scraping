@@ -1,33 +1,33 @@
-﻿using CSI.Common.Config;
+﻿using System;
+using System.ComponentModel;
+using CSI.Common;
+using CSI.Common.Config;
 using CSI.WebScraping.Extensions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-using System;
-using System.ComponentModel;
-using CSI.Common;
 
-namespace CSI.WebScraping.Services.ScanSource;
+namespace CSI.WebScraping.Services.BHPhotoVideo;
 
-internal class ScanAccountService
+internal class BHAccountService
 {
     private readonly BackgroundWorker _bgWorker;
     private readonly WebDriver _driver;
-    private readonly ScanSourceConfig _ssConfig;
-    
-    public ScanAccountService(BackgroundWorker bgWorker, WebDriver driver)
+    private readonly BHConfig _bhConfig;
+
+    public BHAccountService(BackgroundWorker bgWorker, WebDriver driver)
     {
         _bgWorker = bgWorker;
         _driver = driver;
-        _ssConfig = ScanSourceConfig.GetInstance();
+        _bhConfig = BHConfig.GetInstance();
     }
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.ScanSource} using URL '{_ssConfig.HomeUrl}' with username '{_ssConfig.Username}' and password '{_ssConfig.Password}'");
+        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.BHPhotoVideo} using URL '{_bhConfig.HomeUrl}' with username '{_bhConfig.Username}' and password '{_bhConfig.Password}'");
 
-        _bgWorker.ReportProgress(0, $"Navigating to URL {_ssConfig.HomeUrl}");
-        _driver.Navigate().GoToUrl(_ssConfig.HomeUrl);
+        _bgWorker.ReportProgress(0, $"Navigating to URL {_bhConfig.HomeUrl}");
+        _driver.Navigate().GoToUrl(_bhConfig.HomeUrl);
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
         var signInLink = wait.Until(d => d.FindElement(By.Id("accountMenu")));
@@ -35,13 +35,13 @@ internal class ScanAccountService
         var action = new Actions(_driver);
         action.MoveToElement(signInLink).Click().Build().Perform();
 
-        _driver.SaveScreenshot(_bgWorker, _ssConfig, "HomePage");
+        _driver.SaveScreenshot(_bgWorker, _bhConfig, "HomePage");
 
         IWebElement txtEmail = wait.Until(d => d.FindElement(By.Id("email")));
-        txtEmail.SendKeys(_ssConfig.Username);
+        txtEmail.SendKeys(_bhConfig.Username);
 
         IWebElement txtPassword = wait.Until(d => d.FindElement(By.Id("password")));
-        txtPassword.SendKeys(_ssConfig.Password);
+        txtPassword.SendKeys(_bhConfig.Password);
 
         // Search by enter
         //txtPassword.SendKeys(Keys.Enter);
@@ -50,6 +50,6 @@ internal class ScanAccountService
         IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
         btnSignIn.Click();
 
-        _driver.SaveScreenshot(_bgWorker, _ssConfig, "AzureLogin");
+        _driver.SaveScreenshot(_bgWorker, _bhConfig, "AzureLogin");
     }
 }

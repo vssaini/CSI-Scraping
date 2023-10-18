@@ -43,18 +43,18 @@ namespace CSI.WebScraping.Services.Chrome
             options.AddArgument("--hide-scrollbars");
             options.AddArgument("--metrics-recording-only");
             options.AddArgument("--mute-audio");
-            //options.AddArgument("--headless");
+            // options.AddArgument("--headless=new"); // Open Chrome without displaying 
             options.AddArgument("--no-sandbox");
             
-            //options.AddArgument("--headless=new"); // Open Chrome without displaying 
             //options.AddArguments("--kiosk"); // Keep Chrome in full screen. But only works without headless.
             options.AddArgument("--ignore-certificate-errors");
-            options.AddArgument("--window-size=1920,1080");
+            //options.AddArgument("--window-size=1920,1080");
 
             // Disable writing of unnecessary logs
             // Valid levels are INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3
             options.AddArgument("log-level=3");
 
+            // TODO: Put a code of rotating user agents
             options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.89 Safari/537.36");
 
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
