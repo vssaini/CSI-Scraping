@@ -24,10 +24,10 @@ internal class AdiAccountService
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.AdiGlobal} using URL '{_adiConfig.HomeUrl}' with username '{_adiConfig.Username}' and password '{_adiConfig.Password}'");
-
         _bgWorker.ReportProgress(0, $"Navigating to URL {_adiConfig.HomeUrl}");
         _driver.Navigate().GoToUrl(_adiConfig.HomeUrl);
+
+        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.AdiGlobal} using URL '{_adiConfig.HomeUrl}' with username '{_adiConfig.Username}' and password '{_adiConfig.Password}'");
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
         //var signInLink = wait.Until(d => d.FindElement(By.CssSelector(".account-menu .login-menu")));

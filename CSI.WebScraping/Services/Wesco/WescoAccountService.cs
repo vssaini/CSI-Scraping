@@ -21,10 +21,10 @@ internal class WescoAccountService
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.Wesco} using URL '{_wesConfig.LoginUrl}' with username '{_wesConfig.Username}' and password '{_wesConfig.Password}'");
-
         _bgWorker.ReportProgress(0, $"Navigating to URL {_wesConfig.LoginUrl}");
         _driver.Navigate().GoToUrl(_wesConfig.LoginUrl);
+
+        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.Wesco} using URL '{_wesConfig.LoginUrl}' with username '{_wesConfig.Username}' and password '{_wesConfig.Password}'");
 
         _driver.FindElement(By.Id("j_username")).SendKeys(_wesConfig.Username);
         _driver.FindElement(By.Id("j_password")).SendKeys(_wesConfig.Password);

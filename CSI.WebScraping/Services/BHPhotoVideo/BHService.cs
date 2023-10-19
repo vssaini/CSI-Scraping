@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using CSI.Common;
+﻿using CSI.Common;
 using CSI.Common.Config;
 using CSI.WebScraping.Extensions;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 
 namespace CSI.WebScraping.Services.BHPhotoVideo;
 
@@ -32,8 +31,7 @@ public class BHService
     public IEnumerable<Product> GetProducts(List<string> productIds)
     {
         using var driver = _chromeService.GetChromeDriver();
-        var accService = new BHAccountService(_bgWorker, driver);
-        accService.Login();
+        OpenWebsite(driver);
 
         var startTime = DateTime.Now;
         _bgWorker.ReportProgress(0, $"Searching of products started at {startTime:T}.");
@@ -48,6 +46,18 @@ public class BHService
 
         var dateDiff = DateTime.Now - startTime;
         _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
+    }
+
+    private void OpenWebsite(WebDriver driver)
+    {
+        _bgWorker.ReportProgress(0, $"Navigating to URL {_bhConfig.HomeUrl}");
+        driver.Navigate().GoToUrl(_bhConfig.HomeUrl);
+
+        //var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+        //var signInLink = wait.Until(d => d.FindElement(By.CssSelector(".searchAndAccount_DEpV0ZOp7G .searchContainer_dDF1464xPi .searchInput_dDF1464xPi")));
+
+        //var action = new Actions(driver);
+        //action.MoveToElement(signInLink).Click().Build().Perform();
     }
 
     private Product SearchProduct(WebDriver driver, string productId, int counter)
@@ -71,17 +81,7 @@ public class BHService
 
     private void SendSearchCommand(WebDriver driver, string productId)
     {
-        // Find search link and click it
-        var nav = driver.FindElement(By.CssSelector(".site-header__navigation .utility-navigation .utility-navigation__wrap"));
-        var liItems = nav.FindElements(By.TagName("li"));
-        var listItem = liItems.FirstOrDefault(x => x.Text.Trim().Contains("Search"));
-        var action = new Actions(driver);
-        action.MoveToElement(listItem).Click().Build().Perform();
-
-        // Now search for the product in search box shown
-        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
-        var searchField = wait.Until(x => x.FindElement(By.Id("search")));
-
+        var searchField = driver.FindElement(By.CssSelector(".searchAndAccount_DEpV0ZOp7G .searchContainer_dDF1464xPi .searchInput_dDF1464xPi"));
         searchField.Clear();
         searchField.SendKeys(productId);
         searchField.SendKeys(Keys.Enter);
@@ -93,17 +93,19 @@ public class BHService
     {
         try
         {
-            var searchResultExist = SearchResultExist(driver);
-            if (!searchResultExist)
+            var productNotFound = IsProductNotFound(driver);
+            if (!productNotFound)
                 return CommonService.ProductNotFound(productId, counter);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
-            var productDtlDiv = wait.Until(x => x.FindElement(By.CssSelector(".search-result-list .product-detail-container")));
+            var searchResultsDiv = wait.Until(x => x.FindElement(By.XPath("//*[@data-selenium='listingProductDetailSection']")));
 
-            var productExist = ProductExist(productDtlDiv, productId, ".product-content-header .field-manufactureritemnumber");
+            var productDiv = searchResultsDiv.FindElement(By.XPath("//*[@data-selenium='miniProductPage']"));
+
+            var productExist = ProductExist(productDiv, productId, "//*[@data-selenium='miniProductPageProductSkuInfo']");
 
             if (productExist)
-                return GetProductFromDetailDiv(productDtlDiv, productId, counter);
+                return GetProductFromMiniPageDiv(productDiv, productId, counter);
 
             _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
         }
@@ -121,27 +123,27 @@ public class BHService
         return CommonService.ProductNotFound(productId, counter);
     }
 
-    private static bool SearchResultExist(ISearchContext driver)
+    private static bool IsProductNotFound(ISearchContext driver)
     {
-        var searchResultDiv = driver.FindElements(By.CssSelector(".search-result-list"));
-        return searchResultDiv.Any();
+        //var infoMessages = driver.FindElements(By.XPath(".topSection_OOvCaqUpUN message_jvmnw0TV7p"));
+        var infoMessages = driver.FindElements(By.XPath("//*[@data-selenium='correctedSearchTermMsg']"));
+        return infoMessages.Any(i => i.Text.Contains("We did not find any matches for"));
     }
 
-    private static bool ProductExist(ISearchContext productDiv, string productId, string cssSelectorToFind)
+    private static bool ProductExist(ISearchContext productDiv, string productId, string xPathToFind)
     {
-        // NOTE - Space after each class name is mandatory
-        var productManufacturerNumbers = productDiv.FindElements(By.CssSelector(cssSelectorToFind));
-        return productManufacturerNumbers.Any(p => p.Text.Trim().Contains(productId));
+        var prodSkuNumbers = productDiv.FindElements(By.XPath(xPathToFind));
+        return prodSkuNumbers.Any(p => p.Text.Trim().Contains(productId));
     }
 
-    private Product GetProductFromDetailDiv(ISearchContext productDtlDiv, string productId, int counter)
+    private Product GetProductFromMiniPageDiv(ISearchContext productDiv, string productId, int counter)
     {
-        var prodDtlDiv = productDtlDiv.FindElement(By.CssSelector(".product-content-header .product-detail-name"));
+        var prodDtlDiv = productDiv.FindElement(By.XPath("//*[@data-selenium='miniProductPageProductName']"));
         var productName = prodDtlDiv.Text;
 
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
-        var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
+        var priceLbl = productDiv.FindElement(By.XPath("//*[@data-selenium='uppedDecimalPriceFirst']"));
         var productPrice = priceLbl.Text;
 
         return new Product

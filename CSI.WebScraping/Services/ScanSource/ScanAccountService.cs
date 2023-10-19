@@ -24,10 +24,10 @@ internal class ScanAccountService
 
     public void Login()
     {
-        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.ScanSource} using URL '{_ssConfig.HomeUrl}' with username '{_ssConfig.Username}' and password '{_ssConfig.Password}'");
-
         _bgWorker.ReportProgress(0, $"Navigating to URL {_ssConfig.HomeUrl}");
         _driver.Navigate().GoToUrl(_ssConfig.HomeUrl);
+
+        _bgWorker.ReportProgress(0, $"Signing on {Constants.Website.ScanSource} using URL '{_ssConfig.HomeUrl}' with username '{_ssConfig.Username}' and password '{_ssConfig.Password}'");
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
         var signInLink = wait.Until(d => d.FindElement(By.Id("accountMenu")));
