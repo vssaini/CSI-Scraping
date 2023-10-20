@@ -9,6 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using PuppeteerExtraSharp;
+using PuppeteerExtraSharp.Plugins.ExtraStealth;
+using PuppeteerSharp;
+using Product = CSI.Common.Product;
 
 namespace CSI.WebScraping.Services.BHPhotoVideo;
 
@@ -30,6 +35,8 @@ public class BHService
 
     public IEnumerable<Product> GetProducts(List<string> productIds)
     {
+        //OpenPageUsingPuppeteerExtra().Wait();
+
         using var driver = _chromeService.GetChromeDriver();
         OpenWebsite(driver);
 
@@ -46,6 +53,45 @@ public class BHService
 
         var dateDiff = DateTime.Now - startTime;
         _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
+    }
+
+    // This is working. But require more R&D
+    public async Task OpenPageUsingPuppeteerExtra()
+    {
+        try
+        {
+            using var browserFetcher = new BrowserFetcher();
+            await browserFetcher.DownloadAsync();
+
+            // Initialization plugin builder
+            var extra = new PuppeteerExtra();
+            
+            // Use stealth plugin
+            extra.Use(new StealthPlugin());
+
+            // Launch the puppeteer browser with plugins
+            var browser = await extra.LaunchAsync(new LaunchOptions
+            {
+                Headless = false
+            });
+
+            _bgWorker.ReportProgress(0, $"Navigating to URL {_bhConfig.HomeUrl}");
+
+            // Create a new page
+            var page = await browser.NewPageAsync();
+
+            await page.GoToAsync(_bhConfig.HomeUrl);
+
+            // Wait 2 second
+            await page.WaitForTimeoutAsync(2000);
+
+            // Take the screenshot
+            await page.ScreenshotAsync("B&H-Extra.png");
+        }
+        catch (Exception e)
+        {
+            _bgWorker.ReportProgress(0, $"Error occurred while opening the page. Error - {e.Message}");
+        }
     }
 
     private void OpenWebsite(WebDriver driver)
