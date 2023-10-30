@@ -18,6 +18,8 @@ namespace CSI.WebScraping.Services.Wesco
         private readonly BackgroundWorker _bgWorker;
         private readonly WescoConfig _wesConfig;
 
+        private const string WebAbbrv = "W";
+
         public WescoService(BackgroundWorker bgWorker)
         {
             _chromeService = new ChromeService(bgWorker);
@@ -30,23 +32,23 @@ namespace CSI.WebScraping.Services.Wesco
 
         public IEnumerable<ProductDto> GetProducts(List<string> productIds)
         {
-            using var driver = _chromeService.GetChromeDriver();
+            using var driver = _chromeService.GetChromeDriver(Constants.Website.Wesco);
             var accService = new WescoAccountService(_bgWorker, driver);
             accService.Login();
 
             var startTime = DateTime.Now;
-            _bgWorker.ReportProgress(0, $"Searching of products started at {startTime:T}.");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Searching of products started at {startTime:T}.");
 
             for (var i = 0; i < productIds.Count; i++)
             {
                 var productId = productIds[i];
-                _bgWorker.ReportProgress(0, $"{i + 1}/{productIds.Count} - Searching the product '{productId}'");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - {i + 1}/{productIds.Count} - Searching the product '{productId}'");
 
                 yield return SearchProduct(driver, productId, i);
             }
 
             var dateDiff = DateTime.Now - startTime;
-            _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
         }
 
         private ProductDto SearchProduct(WebDriver driver, string productId, int counter)
@@ -61,10 +63,10 @@ namespace CSI.WebScraping.Services.Wesco
             catch (Exception e)
             {
                 Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
-                _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Error occurred while searching the product '{productId}'. Error - {e.Message}");
             }
 
-            return CommonService.ProductNotFound(productId, counter);
+            return CommonService.ProductNotFound(productId, counter, WebAbbrv);
         }
 
         private static void SendSearchCommand(ISearchContext driver, string productId)
@@ -84,20 +86,20 @@ namespace CSI.WebScraping.Services.Wesco
                     ? GetPaginatedProduct(driver, productId, counter)
                     : GetSingleProduct(driver, productId, counter);
 
-                return product ?? CommonService.ProductNotFound(productId, counter);
+                return product ?? CommonService.ProductNotFound(productId, counter, WebAbbrv);
             }
             catch (NoSuchElementException e)
             {
                 Log.Logger.Error(e, "No such element was found.");
-                _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Div with class 'product-info' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
                 Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
-                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - An error occurred while searching for the product '{productId}'.");
             }
 
-            return CommonService.ProductNotFound(productId, counter);
+            return CommonService.ProductNotFound(productId, counter, WebAbbrv);
         }
 
         private static bool PaginatedDivExist(ISearchContext driver)
@@ -123,12 +125,12 @@ namespace CSI.WebScraping.Services.Wesco
             catch (NoSuchElementException e)
             {
                 Log.Logger.Error(e, "No such element was found.");
-                _bgWorker.ReportProgress(0, $"Div with class 'productList' not found for the product '{productId}'.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Div with class 'productList' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
                 Log.Logger.Error(e, "An error occurred while searching for the paginated product '{ProductId}'.", productId);
-                _bgWorker.ReportProgress(0, $"An error occurred while searching for the paginated product '{productId}'. Error - {e.Message}");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - An error occurred while searching for the paginated product '{productId}'. Error - {e.Message}");
             }
 
             return null;
@@ -138,7 +140,7 @@ namespace CSI.WebScraping.Services.Wesco
         {
             var productName = productListDiv.FindElement(By.CssSelector(".product-tile .title-section .title-primary")).Text;
 
-            _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Product '{productId}' found. Name - {productName}");
 
             var priceSpan = productListDiv.FindElement(By.CssSelector(".cart-item-price .listing-page-price .js-priceDisplay"));
             var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
@@ -148,7 +150,7 @@ namespace CSI.WebScraping.Services.Wesco
 
             return new ProductDto
             {
-                Id = counter + 1,
+                Id = $"{WebAbbrv}{counter + 1}",
                 ProductId = productId,
                 Status = Constants.StatusFound,
                 Name = productName,
@@ -171,17 +173,17 @@ namespace CSI.WebScraping.Services.Wesco
                 if (productExist)
                     return GetProductFromInfoDiv(productInfoDiv, productId, counter);
 
-                _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Product '{productId}' not found.");
             }
             catch (NoSuchElementException e)
             {
                 Log.Logger.Error(e, "No such element was found.");
-                _bgWorker.ReportProgress(0, $"Div with class 'product-info' not found for the product '{productId}'.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Div with class 'product-info' not found for the product '{productId}'.");
             }
             catch (Exception e)
             {
                 Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
-                _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
+                _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - An error occurred while searching for the product '{productId}'.");
             }
 
             return null;
@@ -192,7 +194,7 @@ namespace CSI.WebScraping.Services.Wesco
             var spans = productInfoDiv.FindElements(By.TagName("span"));
             var productName = spans[1].Text;
 
-            _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Product '{productId}' found. Name - {productName}");
 
             var priceSpan = productInfoDiv.FindElement(By.CssSelector(".product-pricing .price .js-priceDisplay"));
             var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
@@ -202,7 +204,7 @@ namespace CSI.WebScraping.Services.Wesco
 
             return new ProductDto
             {
-                Id = counter + 1,
+                Id = $"{WebAbbrv}{counter + 1}",
                 ProductId = productId,
                 Status = Constants.StatusFound,
                 Name = productName,

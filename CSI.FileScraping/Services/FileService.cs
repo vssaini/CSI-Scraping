@@ -41,7 +41,7 @@ namespace CSI.FileScraping.Services
 
                 yield return new ProductDto
                 {
-                    Id = i + 1,
+                    Id = $"{i + 1}",
                     ProductId = productId,
                     Name = row[2].ToString(),
                     Price = decimal.TryParse(row[4].ToString(), out var price) ? price : 0,

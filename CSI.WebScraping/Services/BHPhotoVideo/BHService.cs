@@ -22,6 +22,8 @@ public class BHService
     private readonly BackgroundWorker _bgWorker;
     private readonly BHConfig _bhConfig;
 
+    private const string WebAbbrv = "BH";
+
     public BHService(BackgroundWorker bgWorker)
     {
         _chromeService = new ChromeService(bgWorker);
@@ -36,7 +38,7 @@ public class BHService
     {
         //OpenPageUsingPuppeteerExtra().Wait();
 
-        using var driver = _chromeService.GetChromeDriver();
+        using var driver = _chromeService.GetChromeDriver(Constants.Website.BHPhotoVideo);
         OpenWebsite(driver);
 
         var startTime = DateTime.Now;
@@ -121,7 +123,7 @@ public class BHService
             _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
         }
 
-        return CommonService.ProductNotFound(productId, counter);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
     }
 
     private void SendSearchCommand(WebDriver driver, string productId)
@@ -140,7 +142,7 @@ public class BHService
         {
             var productNotFound = IsProductNotFound(driver);
             if (!productNotFound)
-                return CommonService.ProductNotFound(productId, counter);
+                return CommonService.ProductNotFound(productId, counter, WebAbbrv);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var searchResultsDiv = wait.Until(x => x.FindElement(By.XPath("//*[@data-selenium='listingProductDetailSection']")));
@@ -165,7 +167,7 @@ public class BHService
             _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
         }
 
-        return CommonService.ProductNotFound(productId, counter);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
     }
 
     private static bool IsProductNotFound(ISearchContext driver)
@@ -189,10 +191,10 @@ public class BHService
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
         var priceLbl = productDiv.FindElement(By.XPath("//*[@data-selenium='uppedDecimalPriceFirst']"));
-        
+
         return new ProductDto
         {
-            Id = counter + 1,
+            Id = $"{WebAbbrv}{counter + 1}",
             ProductId = productId,
             Status = Constants.StatusFound,
             Name = productName,

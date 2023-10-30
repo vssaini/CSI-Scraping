@@ -1,6 +1,10 @@
-﻿using CSI.Common.Enums;
+﻿using CSI.Common;
+using CSI.Common.Enums;
 using CSI.FileScraping.Services;
 using CSI.Services;
+using CSI.WebScraping.Services.AdiGlobal;
+using CSI.WebScraping.Services.BHPhotoVideo;
+using CSI.WebScraping.Services.ScanSource;
 using CSI.WebScraping.Services.Wesco;
 using Serilog;
 using System;
@@ -9,12 +13,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using CSI.Common;
-using CSI.WebScraping.Services.AdiGlobal;
-using CSI.WebScraping.Services.BHPhotoVideo;
-using CSI.WebScraping.Services.ScanSource;
 
 namespace CSI.Scrapper.Helpers
 {
@@ -116,9 +118,9 @@ namespace CSI.Scrapper.Helpers
 
         public void PopulateProducts(SearchAction searchAction, object arg)
         {
-            // TODO: Brainstorm if we should start scraping on all three via three threads
-
             Log.Logger.Information("Fetching products via search action {SearchAction}", searchAction);
+
+            CloseGhostsChromeDriver();
 
             switch (searchAction)
             {
@@ -136,6 +138,21 @@ namespace CSI.Scrapper.Helpers
             }
         }
 
+        private static void CloseGhostsChromeDriver()
+        {
+            var cmd = Process.GetProcessesByName("cmd");
+            var chromeDriver = Process.GetProcessesByName("chromedriver");
+
+            var workers = chromeDriver.Concat(cmd).ToArray();
+
+            foreach (var worker in workers)
+            {
+                worker.Kill();
+                worker.WaitForExit();
+                worker.Dispose();
+            }
+        }
+
         private void PopulateProductsFromWeb(object arg)
         {
             _products.Clear();
@@ -144,10 +161,9 @@ namespace CSI.Scrapper.Helpers
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
 
-            //PopulateProductsFromWesco(productIds);
-            PopulateProductsFromScanSource(productIds);
-            //PopulateProductsFromAdiGlobal(productIds);
-            //PopulateProductsFromBHPhotoVideo(productIds);
+            Parallel.Invoke(() => PopulateProductsFromWesco(productIds),
+                () => PopulateProductsFromScanSource(productIds)
+            );
         }
 
         private void PopulateProductsFromPdfFile(object arg)
@@ -176,10 +192,10 @@ namespace CSI.Scrapper.Helpers
             var fileService = new FileService(_bgWorker);
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
 
-            //PopulateProductsFromWesco(productIds);
-            PopulateProductsFromScanSource(productIds);
-            //PopulateProductsFromAdiGlobal(productIds);
-            //PopulateProductsFromBHPhotoVideo(productIds);
+            Parallel.Invoke(() => PopulateProductsFromWesco(productIds),
+                () => PopulateProductsFromScanSource(productIds)
+            );
+
             SaveProductsToDb(false);
         }
 

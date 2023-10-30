@@ -20,6 +20,8 @@ public class ScanService
     private readonly BackgroundWorker _bgWorker;
     private readonly ScanSourceConfig _ssConfig;
 
+    private const string WebAbbrv = "SS";
+
     public ScanService(BackgroundWorker bgWorker)
     {
         _chromeService = new ChromeService(bgWorker);
@@ -32,23 +34,23 @@ public class ScanService
 
     public IEnumerable<ProductDto> GetProducts(List<string> productIds)
     {
-        using var driver = _chromeService.GetChromeDriver();
+        using var driver = _chromeService.GetChromeDriver(Constants.Website.ScanSource);
         var accService = new ScanAccountService(_bgWorker, driver);
         accService.Login();
 
         var startTime = DateTime.Now;
-        _bgWorker.ReportProgress(0, $"Searching of products started at {startTime:T}.");
+        _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Searching of products started at {startTime:T}.");
 
         for (var i = 0; i < productIds.Count; i++)
         {
             var productId = productIds[i];
-            _bgWorker.ReportProgress(0, $"{i + 1}/{productIds.Count} - Searching the product '{productId}'");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - {i + 1}/{productIds.Count} - Searching the product '{productId}'");
 
             yield return SearchProduct(driver, productId, i);
         }
 
         var dateDiff = DateTime.Now - startTime;
-        _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
+        _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
     }
 
     private ProductDto SearchProduct(WebDriver driver, string productId, int counter)
@@ -64,10 +66,10 @@ public class ScanService
         catch (Exception e)
         {
             Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
-            _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Error occurred while searching the product '{productId}'. Error - {e.Message}");
         }
 
-        return CommonService.ProductNotFound(productId, counter);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
     }
 
     private void SendSearchCommand(WebDriver driver, string productId)
@@ -96,7 +98,7 @@ public class ScanService
         {
             var searchResultExist = SearchResultExist(driver);
             if (!searchResultExist)
-                return CommonService.ProductNotFound(productId, counter);
+                return CommonService.ProductNotFound(productId, counter, WebAbbrv);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var productDtlDiv = wait.Until(x => x.FindElement(By.CssSelector(".search-result-list .product-detail-container")));
@@ -106,20 +108,20 @@ public class ScanService
             if (productExist)
                 return GetProductFromDetailDiv(productDtlDiv, productId, counter);
 
-            _bgWorker.ReportProgress(0, $"Product '{productId}' not found.");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Product '{productId}' not found.");
         }
         catch (NoSuchElementException e)
         {
             Log.Logger.Error(e, "No such element was found.");
-            _bgWorker.ReportProgress(0, $"Div with class 'search-result-list' not found for the product '{productId}'.");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Div with class 'search-result-list' not found for the product '{productId}'.");
         }
         catch (Exception e)
         {
             Log.Logger.Error(e, "An error occurred while searching for the product '{ProductId}'.", productId);
-            _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
+            _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - An error occurred while searching for the product '{productId}'.");
         }
 
-        return CommonService.ProductNotFound(productId, counter);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
     }
 
     private static bool SearchResultExist(ISearchContext driver)
@@ -140,7 +142,7 @@ public class ScanService
         var prodDtlDiv = productDtlDiv.FindElement(By.CssSelector(".product-content-header .product-detail-name"));
         var productName = prodDtlDiv.Text;
 
-        _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
+        _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Product '{productId}' found. Name - {productName}");
 
         var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
 
@@ -150,7 +152,7 @@ public class ScanService
 
         return new ProductDto
         {
-            Id = counter + 1,
+            Id = $"{WebAbbrv}{counter + 1}",
             ProductId = productId,
             Status = Constants.StatusFound,
             Name = productName,

@@ -2,8 +2,6 @@
 using OpenQA.Selenium.Chrome;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 
 namespace CSI.WebScraping.Services.Chrome
 {
@@ -18,11 +16,9 @@ namespace CSI.WebScraping.Services.Chrome
             _cdConfig = ChromeDriverConfig.GetInstance();
         }
 
-        public ChromeDriver GetChromeDriver()
+        public ChromeDriver GetChromeDriver(string website)
         {
-            _bgWorker.ReportProgress(0, "Initiating Chrome driver.");
-
-            CloseGhostsChromeDriver();
+            _bgWorker.ReportProgress(0, $"{website} - Initiating Chrome driver.");
 
             var options = new ChromeOptions();
 
@@ -48,7 +44,7 @@ namespace CSI.WebScraping.Services.Chrome
 
             options.AddArgument("--no-sandbox");
             options.AddArgument("--ignore-certificate-errors");
-            
+
 
             // Disable writing of unnecessary logs
             // Valid levels are INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3
@@ -66,21 +62,6 @@ namespace CSI.WebScraping.Services.Chrome
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(_cdConfig.ImplicitWaitSeconds);
 
             return driver;
-        }
-
-        private static void CloseGhostsChromeDriver()
-        {
-            var cmd = Process.GetProcessesByName("cmd");
-            var chromeDriver = Process.GetProcessesByName("chromedriver");
-
-            var workers = chromeDriver.Concat(cmd).ToArray();
-
-            foreach (var worker in workers)
-            {
-                worker.Kill();
-                worker.WaitForExit();
-                worker.Dispose();
-            }
         }
     }
 }
