@@ -26,12 +26,13 @@ public static class CommonService
         return Path.Combine(assemblyDirectory, directoryName);
     }
 
-    public static ProductDto ProductNotFound(string productId, int counter, string webAbbrv)
+    public static ProductDto ProductNotFound(string productId, int counter, string webAbbrv, string source)
     {
         return new ProductDto
         {
             Id = $"{webAbbrv}{counter + 1}",
-            ProductId = productId
+            ProductId = productId,
+            Source = source
         };
     }
 }

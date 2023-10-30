@@ -66,7 +66,7 @@ namespace CSI.WebScraping.Services.Wesco
                 _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - Error occurred while searching the product '{productId}'. Error - {e.Message}");
             }
 
-            return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+            return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.Wesco);
         }
 
         private static void SendSearchCommand(ISearchContext driver, string productId)
@@ -86,7 +86,7 @@ namespace CSI.WebScraping.Services.Wesco
                     ? GetPaginatedProduct(driver, productId, counter)
                     : GetSingleProduct(driver, productId, counter);
 
-                return product ?? CommonService.ProductNotFound(productId, counter, WebAbbrv);
+                return product ?? CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.Wesco);
             }
             catch (NoSuchElementException e)
             {
@@ -99,7 +99,7 @@ namespace CSI.WebScraping.Services.Wesco
                 _bgWorker.ReportProgress(0, $"{Constants.Website.Wesco} - An error occurred while searching for the product '{productId}'.");
             }
 
-            return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+            return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.Wesco);
         }
 
         private static bool PaginatedDivExist(ISearchContext driver)
@@ -155,7 +155,8 @@ namespace CSI.WebScraping.Services.Wesco
                 Status = Constants.StatusFound,
                 Name = productName,
                 Price = productPrice.ToDecimal(),
-                Stock = stockValue.ToInt()
+                Stock = stockValue.ToInt(),
+                Source = Constants.Website.Wesco
             };
         }
 

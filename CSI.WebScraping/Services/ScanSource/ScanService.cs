@@ -69,7 +69,7 @@ public class ScanService
             _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - Error occurred while searching the product '{productId}'. Error - {e.Message}");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.ScanSource);
     }
 
     private void SendSearchCommand(WebDriver driver, string productId)
@@ -98,7 +98,7 @@ public class ScanService
         {
             var searchResultExist = SearchResultExist(driver);
             if (!searchResultExist)
-                return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+                return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.ScanSource);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var productDtlDiv = wait.Until(x => x.FindElement(By.CssSelector(".search-result-list .product-detail-container")));
@@ -121,7 +121,7 @@ public class ScanService
             _bgWorker.ReportProgress(0, $"{Constants.Website.ScanSource} - An error occurred while searching for the product '{productId}'.");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.ScanSource);
     }
 
     private static bool SearchResultExist(ISearchContext driver)

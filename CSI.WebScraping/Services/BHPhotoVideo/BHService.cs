@@ -123,7 +123,7 @@ public class BHService
             _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.BHPhotoVideo);
     }
 
     private void SendSearchCommand(WebDriver driver, string productId)
@@ -142,7 +142,7 @@ public class BHService
         {
             var productNotFound = IsProductNotFound(driver);
             if (!productNotFound)
-                return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+                return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.BHPhotoVideo);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var searchResultsDiv = wait.Until(x => x.FindElement(By.XPath("//*[@data-selenium='listingProductDetailSection']")));
@@ -167,7 +167,7 @@ public class BHService
             _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.BHPhotoVideo);
     }
 
     private static bool IsProductNotFound(ISearchContext driver)

@@ -46,7 +46,7 @@ internal class ScanAccountService
         // Search by enter
         //txtPassword.SendKeys(Keys.Enter);
 
-        wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(60));
+        wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(120));
         IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
         btnSignIn.Click();
 

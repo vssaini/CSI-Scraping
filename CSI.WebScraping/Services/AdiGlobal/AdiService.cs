@@ -68,7 +68,7 @@ public class AdiService
             _bgWorker.ReportProgress(0, $"Error occurred while searching the product '{productId}'. Error - {e.Message}");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.AdiGlobal);
     }
 
     private void SendSearchCommand(WebDriver driver, string productId)
@@ -102,7 +102,7 @@ public class AdiService
         {
             var searchResultExist = SearchResultExist(driver);
             if (!searchResultExist)
-                return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+                return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.AdiGlobal);
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             var productContainer = wait.Until(x => x.FindElement(By.CssSelector(".rd-productlistgrid .rd-item-list .isc-productContainer")));
@@ -125,7 +125,7 @@ public class AdiService
             _bgWorker.ReportProgress(0, $"An error occurred while searching for the product '{productId}'.");
         }
 
-        return CommonService.ProductNotFound(productId, counter, WebAbbrv);
+        return CommonService.ProductNotFound(productId, counter, WebAbbrv, Constants.Website.AdiGlobal);
     }
 
     private static bool SearchResultExist(ISearchContext driver)
