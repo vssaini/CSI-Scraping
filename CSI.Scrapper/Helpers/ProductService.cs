@@ -144,8 +144,8 @@ namespace CSI.Scrapper.Helpers
                 ? productIdTxt.Split(',').Select(x => x.Trim()).ToList()
                 : new List<string>();
 
-            PopulateProductsFromWesco(productIds);
-            //PopulateProductsFromScanSource(productIds);
+            //PopulateProductsFromWesco(productIds);
+            PopulateProductsFromScanSource(productIds);
             //PopulateProductsFromAdiGlobal(productIds);
             //PopulateProductsFromBHPhotoVideo(productIds);
         }
@@ -176,8 +176,8 @@ namespace CSI.Scrapper.Helpers
             var fileService = new FileService(_bgWorker);
             var productIds = fileService.GetProductIdsFromExcelFile(excelFilePath);
 
-            PopulateProductsFromWesco(productIds);
-            //PopulateProductsFromScanSource(productIds);
+            //PopulateProductsFromWesco(productIds);
+            PopulateProductsFromScanSource(productIds);
             //PopulateProductsFromAdiGlobal(productIds);
             //PopulateProductsFromBHPhotoVideo(productIds);
             SaveProductsToDb(false);

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CSI.WebScraping.Services.ScanSource;
 
@@ -143,13 +144,19 @@ public class ScanService
 
         var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
 
+        var stock = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .product-stock"))
+            .FindElement(By.TagName("b"));
+        var stockValue = Regex.Match(stock.Text, @"\d+").Value;
+
         return new ProductDto
         {
             Id = counter + 1,
             ProductId = productId,
             Status = Constants.StatusFound,
             Name = productName,
-            Price = priceLbl.Text.ToDecimal()
+            Price = priceLbl.Text.ToDecimal(),
+            Stock = stockValue.ToInt(),
+            Source = Constants.Website.ScanSource
         };
     }
 }

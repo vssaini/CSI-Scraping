@@ -30,5 +30,8 @@ namespace CSI.Data
 
         [Column(Order = 6)]
         public int ProductStock { get; set; }
+
+        [Column(Order = 7)]
+        public string Source { get; set; }
     }
 }

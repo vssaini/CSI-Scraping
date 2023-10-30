@@ -8,6 +8,7 @@
         public string Name { get; set; }
         public decimal Price { get; set; }
         public int Stock { get; set; }
+        public string Source { get; set; }
 
         public string Status { get; set; }
         public string IsCamera => string.IsNullOrWhiteSpace(Name) ? "No" : Name.Contains("Camera") ? "Yes" : "No";

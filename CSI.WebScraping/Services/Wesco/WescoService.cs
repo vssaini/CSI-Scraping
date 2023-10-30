@@ -207,7 +207,8 @@ namespace CSI.WebScraping.Services.Wesco
                 Status = Constants.StatusFound,
                 Name = productName,
                 Price = productPrice.ToDecimal(),
-                Stock = stockValue.ToInt()
+                Stock = stockValue.ToInt(),
+                Source = Constants.Website.Wesco
             };
         }
 

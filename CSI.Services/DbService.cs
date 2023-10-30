@@ -36,7 +36,7 @@ namespace CSI.Services
             {
                 _bgWorker.ReportProgress(0, $"Saving {products.Count} products to database using BatchId {batchId}.");
 
-                var stagingProducts = GetStagingProducts(products, batchId);
+                var stagingProducts = GetDbProducts(products, batchId);
 
                 using (var ctx = new ScrapperContext())
                 {
@@ -60,7 +60,7 @@ namespace CSI.Services
             }
         }
 
-        private static IEnumerable<Product> GetStagingProducts(IEnumerable<ProductDto> products, int batchId)
+        private static IEnumerable<Product> GetDbProducts(IEnumerable<ProductDto> products, int batchId)
         {
             var stagingProducts = products
                 .Where(p => p.Name != null && p.Price > 0)
@@ -72,7 +72,9 @@ namespace CSI.Services
                     ProductId = p.ProductId,
                     ProductName = p.Name,
                     ProductPrice = p.Price,
-                    ProductStock = p.Stock
+                    ProductStock = p.Stock,
+
+                    Source = p.Source
                 })
                 .ToList();
 

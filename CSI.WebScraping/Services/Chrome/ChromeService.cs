@@ -44,10 +44,11 @@ namespace CSI.WebScraping.Services.Chrome
 
             options.AddArgument("--headless=new"); // Open Chrome without displaying 
             //options.AddArguments("--kiosk"); // Keep Chrome in full screen. But only works without headless.
+            options.AddArgument("--window-size=1920,1080"); // Necessary for ScanService
 
             options.AddArgument("--no-sandbox");
             options.AddArgument("--ignore-certificate-errors");
-            //options.AddArgument("--window-size=1920,1080");
+            
 
             // Disable writing of unnecessary logs
             // Valid levels are INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3
