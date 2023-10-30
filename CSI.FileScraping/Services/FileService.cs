@@ -19,7 +19,7 @@ namespace CSI.FileScraping.Services
             _bgWorker = bgWorker;
         }
 
-        public IEnumerable<Product> GetProducts(string pdfFilePath)
+        public IEnumerable<ProductDto> GetProducts(string pdfFilePath)
         {
             var startTime = DateTime.Now;
             _bgWorker.ReportProgress(0, $"Retrieving of products from PDF started at {startTime:T}.");
@@ -39,12 +39,12 @@ namespace CSI.FileScraping.Services
 
                 _bgWorker.ReportProgress(0, $"{i + 1}/{rows.Count} - Processing the product '{productId}'");
 
-                yield return new Product
+                yield return new ProductDto
                 {
                     Id = i + 1,
                     ProductId = productId,
                     Name = row[2].ToString(),
-                    Price = row[4].ToString(),
+                    Price = decimal.TryParse(row[4].ToString(), out var price) ? price : 0,
                     Status = Constants.StatusFound
                 };
             }

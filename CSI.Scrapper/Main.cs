@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
-using CSI.WebScraping.Services.BHPhotoVideo;
 
 namespace CSI.Scrapper
 {

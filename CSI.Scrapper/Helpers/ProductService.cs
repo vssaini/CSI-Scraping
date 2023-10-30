@@ -25,7 +25,7 @@ namespace CSI.Scrapper.Helpers
         private readonly DataGridView _gvProducts;
 
         private readonly DbService _dbService;
-        private readonly ObservableCollection<Product> _products;
+        private readonly ObservableCollection<ProductDto> _products;
         private readonly BindingSource _bindingSource;
         private int _batchId, _rowsSaved, _multiplicand = 1;
         private static int _recordsToSaveInBatch;
@@ -37,7 +37,7 @@ namespace CSI.Scrapper.Helpers
             _gvProducts = gvProducts;
             _dbService = new DbService(bgWorker);
 
-            _products = new ObservableCollection<Product>();
+            _products = new ObservableCollection<ProductDto>();
             _products.CollectionChanged += Products_CollectionChanged;
 
             _bindingSource = new BindingSource { DataSource = _products, AllowNew = false };
@@ -83,7 +83,7 @@ namespace CSI.Scrapper.Helpers
 
         private void SaveProductsToDb(bool saveInBatch = true)
         {
-            List<Product> productsToSave;
+            List<ProductDto> productsToSave;
 
             if (saveInBatch)
             {
@@ -211,7 +211,7 @@ namespace CSI.Scrapper.Helpers
             ProcessProducts(products);
         }
 
-        private void ProcessProducts(IEnumerable<Product> products)
+        private void ProcessProducts(IEnumerable<ProductDto> products)
         {
             foreach (var wsProduct in products)
             {

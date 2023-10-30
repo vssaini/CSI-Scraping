@@ -1,10 +1,10 @@
-﻿using CSI.Data;
+﻿using CSI.Common;
+using CSI.Data;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using CSI.Common;
-using Serilog;
 
 namespace CSI.Services
 {
@@ -21,7 +21,7 @@ namespace CSI.Services
         {
             using (var ctx = new ScrapperContext())
             {
-                var batchId = ctx.Staging_ProductExtract
+                var batchId = ctx.Products
                     .Select(x => x.Batch)
                     .DefaultIfEmpty(0)
                     .Max();
@@ -30,7 +30,7 @@ namespace CSI.Services
             }
         }
 
-        public bool SaveProducts(List<Product> products, int batchId)
+        public bool SaveProducts(List<ProductDto> products, int batchId)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace CSI.Services
 
                 using (var ctx = new ScrapperContext())
                 {
-                    ctx.Staging_ProductExtract.AddRange(stagingProducts);
+                    ctx.Products.AddRange(stagingProducts);
                     ctx.SaveChanges();
 
                     _bgWorker.ReportProgress(0, $"Saved {products.Count} products to database using BatchId {batchId} successfully!");
@@ -60,18 +60,19 @@ namespace CSI.Services
             }
         }
 
-        private static IEnumerable<Staging_ProductExtract> GetStagingProducts(IEnumerable<Product> products, int batchId)
+        private static IEnumerable<Product> GetStagingProducts(IEnumerable<ProductDto> products, int batchId)
         {
             var stagingProducts = products
-                .Where(p => p.Name != null && p.Price != null)
-                .Select(x => new Staging_ProductExtract
+                .Where(p => p.Name != null && p.Price > 0)
+                .Select(p => new Product
                 {
                     Batch = batchId,
                     BatchDate = DateTime.UtcNow,
 
-                    ProductId = x.ProductId,
-                    ProductName = x.Name,
-                    ProductPrice = x.Price
+                    ProductId = p.ProductId,
+                    ProductName = p.Name,
+                    ProductPrice = p.Price,
+                    ProductStock = p.Stock
                 })
                 .ToList();
 

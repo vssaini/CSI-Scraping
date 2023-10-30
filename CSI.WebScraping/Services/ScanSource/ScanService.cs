@@ -29,7 +29,7 @@ public class ScanService
             CommonService.CreateDirectory(_ssConfig.ScreenshotDirectoryName);
     }
 
-    public IEnumerable<Product> GetProducts(List<string> productIds)
+    public IEnumerable<ProductDto> GetProducts(List<string> productIds)
     {
         using var driver = _chromeService.GetChromeDriver();
         var accService = new ScanAccountService(_bgWorker, driver);
@@ -50,7 +50,7 @@ public class ScanService
         _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
     }
 
-    private Product SearchProduct(WebDriver driver, string productId, int counter)
+    private ProductDto SearchProduct(WebDriver driver, string productId, int counter)
     {
         try
         {
@@ -89,7 +89,7 @@ public class ScanService
         driver.SaveScreenshot(_bgWorker, _ssConfig, $"AfterProduct-{productId}-SearchCommandSent");
     }
 
-    private Product LookForProductInSearchResult(WebDriver driver, string productId, int counter)
+    private ProductDto LookForProductInSearchResult(WebDriver driver, string productId, int counter)
     {
         try
         {
@@ -134,7 +134,7 @@ public class ScanService
         return productManufacturerNumbers.Any(p => p.Text.Trim().Contains(productId));
     }
 
-    private Product GetProductFromDetailDiv(ISearchContext productDtlDiv, string productId, int counter)
+    private ProductDto GetProductFromDetailDiv(ISearchContext productDtlDiv, string productId, int counter)
     {
         var prodDtlDiv = productDtlDiv.FindElement(By.CssSelector(".product-content-header .product-detail-name"));
         var productName = prodDtlDiv.Text;
@@ -142,15 +142,14 @@ public class ScanService
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
         var priceLbl = productDtlDiv.FindElement(By.CssSelector(".product-add-to-cart .field-msrp .prices .your-price"));
-        var productPrice = priceLbl.Text;
 
-        return new Product
+        return new ProductDto
         {
             Id = counter + 1,
             ProductId = productId,
             Status = Constants.StatusFound,
             Name = productName,
-            Price = productPrice
+            Price = priceLbl.Text.ToDecimal()
         };
     }
 }

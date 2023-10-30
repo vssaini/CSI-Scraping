@@ -1,8 +1,8 @@
-﻿using CSI.Common.Extensions;
+﻿using CSI.Common;
+using CSI.Common.Extensions;
 using Serilog;
 using System.IO;
 using System.Reflection;
-using CSI.Common;
 
 namespace CSI.WebScraping.Services;
 
@@ -26,9 +26,9 @@ public static class CommonService
         return Path.Combine(assemblyDirectory, directoryName);
     }
 
-    public static Product ProductNotFound(string productId, int counter)
+    public static ProductDto ProductNotFound(string productId, int counter)
     {
-        return new Product
+        return new ProductDto
         {
             Id = counter + 1,
             ProductId = productId

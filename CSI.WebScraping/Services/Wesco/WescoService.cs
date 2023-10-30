@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Log = Serilog.Log;
 
 namespace CSI.WebScraping.Services.Wesco
@@ -27,7 +28,7 @@ namespace CSI.WebScraping.Services.Wesco
                 CommonService.CreateDirectory(_wesConfig.ScreenshotDirectoryName);
         }
 
-        public IEnumerable<Product> GetProducts(List<string> productIds)
+        public IEnumerable<ProductDto> GetProducts(List<string> productIds)
         {
             using var driver = _chromeService.GetChromeDriver();
             var accService = new WescoAccountService(_bgWorker, driver);
@@ -48,7 +49,7 @@ namespace CSI.WebScraping.Services.Wesco
             _bgWorker.ReportProgress(0, $"Searching of products completed at {DateTime.Now:T} (within {dateDiff.Minutes} minutes).");
         }
 
-        private Product SearchProduct(WebDriver driver, string productId, int counter)
+        private ProductDto SearchProduct(WebDriver driver, string productId, int counter)
         {
             try
             {
@@ -74,7 +75,7 @@ namespace CSI.WebScraping.Services.Wesco
             searchField.SendKeys(Keys.Enter);
         }
 
-        private Product LookForProductInSearchResult(ISearchContext driver, string productId, int counter)
+        private ProductDto LookForProductInSearchResult(ISearchContext driver, string productId, int counter)
         {
             try
             {
@@ -107,7 +108,7 @@ namespace CSI.WebScraping.Services.Wesco
 
         #region Paginated product
 
-        private Product GetPaginatedProduct(ISearchContext driver, string productId, int counter)
+        private ProductDto GetPaginatedProduct(ISearchContext driver, string productId, int counter)
         {
             try
             {
@@ -133,7 +134,7 @@ namespace CSI.WebScraping.Services.Wesco
             return null;
         }
 
-        private Product GetProductFromPaginatedDiv(ISearchContext productListDiv, string productId, int counter)
+        private ProductDto GetProductFromPaginatedDiv(ISearchContext productListDiv, string productId, int counter)
         {
             var productName = productListDiv.FindElement(By.CssSelector(".product-tile .title-section .title-primary")).Text;
 
@@ -142,13 +143,17 @@ namespace CSI.WebScraping.Services.Wesco
             var priceSpan = productListDiv.FindElement(By.CssSelector(".cart-item-price .listing-page-price .js-priceDisplay"));
             var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
 
-            return new Product
+            var stockDetail = productListDiv.FindElement(By.CssSelector(".cart-item-price .manufacturer-note .stock-detail"));
+            var stockValue = Regex.Match(stockDetail.Text, @"\d+").Value;
+
+            return new ProductDto
             {
                 Id = counter + 1,
                 ProductId = productId,
                 Status = Constants.StatusFound,
                 Name = productName,
-                Price = productPrice
+                Price = productPrice.ToDecimal(),
+                Stock = stockValue.ToInt()
             };
         }
 
@@ -156,7 +161,7 @@ namespace CSI.WebScraping.Services.Wesco
 
         #region Single product
 
-        private Product GetSingleProduct(ISearchContext driver, string productId, int counter)
+        private ProductDto GetSingleProduct(ISearchContext driver, string productId, int counter)
         {
             try
             {
@@ -182,7 +187,7 @@ namespace CSI.WebScraping.Services.Wesco
             return null;
         }
 
-        private Product GetProductFromInfoDiv(ISearchContext productInfoDiv, string productId, int counter)
+        private ProductDto GetProductFromInfoDiv(ISearchContext productInfoDiv, string productId, int counter)
         {
             var spans = productInfoDiv.FindElements(By.TagName("span"));
             var productName = spans[1].Text;
@@ -192,13 +197,17 @@ namespace CSI.WebScraping.Services.Wesco
             var priceSpan = productInfoDiv.FindElement(By.CssSelector(".product-pricing .price .js-priceDisplay"));
             var productPrice = priceSpan.GetAttribute("data-formatted-price-value");
 
-            return new Product
+            var stockDetail = productInfoDiv.FindElement(By.CssSelector(".product-shipping .manufacturer-note .stock-detail"));
+            var stockValue = Regex.Match(stockDetail.Text, @"\d+").Value;
+
+            return new ProductDto
             {
                 Id = counter + 1,
                 ProductId = productId,
                 Status = Constants.StatusFound,
                 Name = productName,
-                Price = productPrice
+                Price = productPrice.ToDecimal(),
+                Stock = stockValue.ToInt()
             };
         }
 

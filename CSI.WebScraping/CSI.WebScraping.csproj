@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DriverExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AdiGlobal\AdiAccountService.cs" />
     <Compile Include="Services\AdiGlobal\AdiService.cs" />

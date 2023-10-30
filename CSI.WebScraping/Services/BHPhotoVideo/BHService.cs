@@ -4,16 +4,15 @@ using CSI.WebScraping.Extensions;
 using CSI.WebScraping.Services.Chrome;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using PuppeteerExtraSharp;
+using PuppeteerExtraSharp.Plugins.ExtraStealth;
+using PuppeteerSharp;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using PuppeteerExtraSharp;
-using PuppeteerExtraSharp.Plugins.ExtraStealth;
-using PuppeteerSharp;
-using Product = CSI.Common.Product;
 
 namespace CSI.WebScraping.Services.BHPhotoVideo;
 
@@ -33,7 +32,7 @@ public class BHService
             CommonService.CreateDirectory(_bhConfig.ScreenshotDirectoryName);
     }
 
-    public IEnumerable<Product> GetProducts(List<string> productIds)
+    public IEnumerable<ProductDto> GetProducts(List<string> productIds)
     {
         //OpenPageUsingPuppeteerExtra().Wait();
 
@@ -65,7 +64,7 @@ public class BHService
 
             // Initialization plugin builder
             var extra = new PuppeteerExtra();
-            
+
             // Use stealth plugin
             extra.Use(new StealthPlugin());
 
@@ -106,7 +105,7 @@ public class BHService
         //action.MoveToElement(signInLink).Click().Build().Perform();
     }
 
-    private Product SearchProduct(WebDriver driver, string productId, int counter)
+    private ProductDto SearchProduct(WebDriver driver, string productId, int counter)
     {
         try
         {
@@ -135,7 +134,7 @@ public class BHService
         driver.SaveScreenshot(_bgWorker, _bhConfig, $"AfterProduct-{productId}-SearchCommandSent");
     }
 
-    private Product LookForProductInSearchResult(WebDriver driver, string productId, int counter)
+    private ProductDto LookForProductInSearchResult(WebDriver driver, string productId, int counter)
     {
         try
         {
@@ -182,7 +181,7 @@ public class BHService
         return prodSkuNumbers.Any(p => p.Text.Trim().Contains(productId));
     }
 
-    private Product GetProductFromMiniPageDiv(ISearchContext productDiv, string productId, int counter)
+    private ProductDto GetProductFromMiniPageDiv(ISearchContext productDiv, string productId, int counter)
     {
         var prodDtlDiv = productDiv.FindElement(By.XPath("//*[@data-selenium='miniProductPageProductName']"));
         var productName = prodDtlDiv.Text;
@@ -190,15 +189,14 @@ public class BHService
         _bgWorker.ReportProgress(0, $"Product '{productId}' found. Name - {productName}");
 
         var priceLbl = productDiv.FindElement(By.XPath("//*[@data-selenium='uppedDecimalPriceFirst']"));
-        var productPrice = priceLbl.Text;
-
-        return new Product
+        
+        return new ProductDto
         {
             Id = counter + 1,
             ProductId = productId,
             Status = Constants.StatusFound,
             Name = productName,
-            Price = productPrice
+            Price = priceLbl.Text.ToDecimal()
         };
     }
 }
