@@ -34,19 +34,18 @@ namespace CSI.Services
         {
             try
             {
-                _bgWorker.ReportProgress(0, $"Saving {products.Count} products to database using BatchId {batchId}.");
+                _bgWorker.ReportProgress(0, $"Initiating saving of {products.Count} products. Products without name or price will not be saved.");
 
                 var stagingProducts = GetDbProducts(products, batchId);
+                _bgWorker.ReportProgress(0, $"Found {stagingProducts.Count} products with name and price for saving to database using BatchId {batchId}.");
 
-                using (var ctx = new ScrapperContext())
-                {
-                    ctx.Products.AddRange(stagingProducts);
-                    ctx.SaveChanges();
+                using var ctx = new ScrapperContext();
+                ctx.Products.AddRange(stagingProducts);
+                ctx.SaveChanges();
 
-                    _bgWorker.ReportProgress(0, $"Saved {products.Count} products to database using BatchId {batchId} successfully!");
+                _bgWorker.ReportProgress(0, $"Saved {stagingProducts.Count} products to database using BatchId {batchId} successfully!");
 
-                    return true;
-                }
+                return true;
             }
             catch (Exception e)
             {
@@ -60,7 +59,7 @@ namespace CSI.Services
             }
         }
 
-        private static IEnumerable<Product> GetDbProducts(IEnumerable<ProductDto> products, int batchId)
+        private static List<Product> GetDbProducts(IEnumerable<ProductDto> products, int batchId)
         {
             var stagingProducts = products
                 .Where(p => p.Name != null && p.Price > 0)
