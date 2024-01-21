@@ -71,6 +71,7 @@
     <Compile Include="Helpers\ErrorHandler.cs" />
     <Compile Include="Helpers\ProductService.cs" />
     <Compile Include="Helpers\Startup.cs" />
+    <Compile Include="Helpers\SysUtil.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

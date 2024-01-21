@@ -11,7 +11,7 @@
         public string Source { get; set; }
 
         public string Status { get; set; }
-        public string IsCamera => string.IsNullOrWhiteSpace(Name) ? "No" : Name.Contains("Camera") ? "Yes" : "No";
+        public string IsCamera => string.IsNullOrWhiteSpace(Name) ? string.Empty : Name.Contains("Camera") ? "Yes" : "No";
 
         public ProductDto()
         {

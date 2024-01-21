@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
+using CSI.Common;
 
 namespace CSI.Scrapper
 {
@@ -42,6 +43,9 @@ namespace CSI.Scrapper
         private void bgWebWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             ResetControlsState(e);
+
+            // Allow the system to sleep again
+            SysUtil.SetThreadExecutionState(Constants.System.ES_CONTINUOUS);
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

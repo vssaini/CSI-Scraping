@@ -122,6 +122,9 @@ namespace CSI.Scrapper.Helpers
 
             CloseGhostsChromeDriver();
 
+            // Prevent computer from going to sleep
+            SysUtil.SetThreadExecutionState(Constants.System.ES_CONTINUOUS | Constants.System.ES_SYSTEM_REQUIRED);
+
             switch (searchAction)
             {
                 case SearchAction.Web:

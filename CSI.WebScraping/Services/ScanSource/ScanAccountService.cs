@@ -14,7 +14,7 @@ internal class ScanAccountService
     private readonly BackgroundWorker _bgWorker;
     private readonly WebDriver _driver;
     private readonly ScanSourceConfig _ssConfig;
-    
+
     public ScanAccountService(BackgroundWorker bgWorker, WebDriver driver)
     {
         _bgWorker = bgWorker;
@@ -44,11 +44,12 @@ internal class ScanAccountService
         txtPassword.SendKeys(_ssConfig.Password);
 
         // Search by enter
-        //txtPassword.SendKeys(Keys.Enter);
+        txtPassword.SendKeys(Keys.Enter);
 
-        wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(120));
-        IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
-        btnSignIn.Click();
+        // NOTE: Jan 18, 2024 - Button removed on the Login page
+        //wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(120));
+        //IWebElement btnSignIn = wait.Until(x => x.FindElement(By.Id("next")));
+        //btnSignIn.Click();
 
         _driver.SaveScreenshot(_bgWorker, _ssConfig, "AzureLogin");
     }
