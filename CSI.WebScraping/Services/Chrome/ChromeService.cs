@@ -45,7 +45,6 @@ namespace CSI.WebScraping.Services.Chrome
             options.AddArgument("--no-sandbox");
             options.AddArgument("--ignore-certificate-errors");
 
-
             // Disable writing of unnecessary logs
             // Valid levels are INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3
             options.AddArgument("log-level=3");
@@ -56,9 +55,10 @@ namespace CSI.WebScraping.Services.Chrome
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = _cdConfig.HideCommandPromptWindow;
 
-            var driver = new ChromeDriver(chromeDriverService, options);
+            var driver = new ChromeDriver(chromeDriverService, options, TimeSpan.FromMinutes(3));
 
-            // Implicitly wait for action or search
+            // Configure timeouts
+            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(_cdConfig.ImplicitWaitSeconds);
 
             return driver;

@@ -37,13 +37,19 @@ namespace CSI.Services
                 _bgWorker.ReportProgress(0, $"Initiating saving of {products.Count} products. Products without name or price will not be saved.");
 
                 var stagingProducts = GetDbProducts(products, batchId);
-                _bgWorker.ReportProgress(0, $"Found {stagingProducts.Count} products with name and price for saving to database using BatchId {batchId}.");
+                if (stagingProducts.Count == 0)
+                {
+                    _bgWorker.ReportProgress(0, "No products found with name and price for saving.");
+                    return false;
+                }
+
+                _bgWorker.ReportProgress(0, $"Found {stagingProducts.Count}/{products.Count} products with name and price for saving.");
 
                 using var ctx = new ScrapperContext();
                 ctx.Products.AddRange(stagingProducts);
                 ctx.SaveChanges();
 
-                _bgWorker.ReportProgress(0, $"Saved {stagingProducts.Count} products to database using BatchId {batchId} successfully!");
+                _bgWorker.ReportProgress(0, $"Saved {stagingProducts.Count} products to database using batch id {batchId}.");
 
                 return true;
             }
